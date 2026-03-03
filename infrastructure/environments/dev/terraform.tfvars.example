@@ -1,0 +1,45 @@
+# infrastructure/environments/dev/terraform.tfvars.example
+# This file is safe to commit — contains NO real secrets.
+# Copy to terraform.tfvars and fill in real values.
+
+# ── Neon ──────────────────────────────────────────────────────────────────────
+neon_api_key             = "napi_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+neon_org_id              = "org-xxxxxxxxxxxxxxxx"
+source_neon_project_id   = "your-source-project-id"
+source_neon_branch_id    = "br-xxxxxxxxxxxxxxxx"
+source_db_connection_uri = "postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require"
+target_db_connection_uri = "postgresql://user:pass@ep-yyy.neon.tech/axio_prod?sslmode=require"
+neon_region              = "aws-us-east-1"
+
+# ── Cloudflare ────────────────────────────────────────────────────────────────
+cloudflare_account_id = "your-cloudflare-account-id"
+cloudflare_api_token  = "your-cloudflare-api-token"
+
+# ── GitHub ────────────────────────────────────────────────────────────────────
+github_owner     = "your-github-username"
+github_repo_name = "axioquan"
+
+# ── Auth ──────────────────────────────────────────────────────────────────────
+nextauth_secret = "your-nextauth-secret"
+nextauth_url    = "https://your-project-dev.pages.dev"
+
+# ── Cloudinary ────────────────────────────────────────────────────────────────
+cloudinary_cloud_name = "your-cloudinary-cloud"
+cloudinary_api_key    = "your-cloudinary-key"
+cloudinary_api_secret = "your-cloudinary-secret"
+
+# ── SMTP ──────────────────────────────────────────────────────────────────────
+smtp_host     = "smtp.gmail.com"
+smtp_port     = "587"
+smtp_user     = "your-email@gmail.com"
+smtp_password = "your-app-password"
+smtp_from     = "YourApp <your-email@gmail.com>"
+
+# ── Google OAuth ──────────────────────────────────────────────────────────────
+google_client_id     = "your-google-client-id"
+google_client_secret = "your-google-client-secret"
+
+# ── General ───────────────────────────────────────────────────────────────────
+project_name   = "axio_prod"
+environment    = "dev"
+custom_domain  = ""

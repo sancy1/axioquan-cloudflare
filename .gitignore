@@ -14,7 +14,7 @@ next-env.d.ts
 .env.development
 .env.production
 .env.*
-.env.*.local                    # ← ADDED: catches .env.development.local, etc
+.env.*.local
 
 # ── Terraform ─────────────────────────────────────────────────────────────────
 **/.terraform/*
@@ -22,34 +22,19 @@ next-env.d.ts
 *.tfstate.*
 *.tfvars
 *.tfvars.json
-!*.tfvars.example        # ← KEEP example files (they have no real secrets)
+!*.tfvars.example
 crash.log
-crash.*.log                      # ← ADDED: catches crash.123456789.log
+crash.*.log
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
 .terraform.lock.hcl
-terraform.tfstate.backup          # ← ADDED: explicit backup files
-*.backup                          # ← ADDED: any backup files
+*.backup
 
-# ── Cloudflare / Vercel ───────────────────────────────────────────────────────
+# ── Cloudflare ────────────────────────────────────────────────────────────────
 .vercel
 .wrangler
-wrangler.toml                    # ← ADDED: often contains account ID and secrets
-
-# ── Database ──────────────────────────────────────────────────────────────────
-*.sql                             # ← ADDED: database dumps/schemas (if they contain data)
-!axio_schema.sql                  # ← ADDED: EXCEPTION - keep if it's just schema without data
-                                  #     (remove the '!' if this contains real data)
-
-# ── Project Specific ──────────────────────────────────────────────────────────
-Note.txt                          # ← ADDED: if it contains any notes/secrets
-infrastructure/                   # ← ADDED: entire infrastructure folder
-!infrastructure/README.md         # ← ADDED: EXCEPTION - keep READMEs
-!infrastructure/**/*.tfvars.example # ← ADDED: EXCEPTION - keep example files
-!infrastructure/**/README.md      # ← ADDED: EXCEPTION - keep all READMEs
-!infrastructure/scripts/          # ← ADDED: EXCEPTION - keep scripts (if safe)
 
 # ── Debug Logs ────────────────────────────────────────────────────────────────
 npm-debug.log*
@@ -75,4 +60,6 @@ Thumbs.db
 
 # ── Misc ──────────────────────────────────────────────────────────────────────
 package-lock.json
-pnpm-lock.yaml                    # ← ADDED: you have this in your project
+
+# Note
+Note.txt
