@@ -1,28 +1,78 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-
-# next.js
+# ── Next.js ───────────────────────────────────────────────────────────────────
 /.next/
 /out/
-
-# production
 /build
+next-env.d.ts
+*.tsbuildinfo
 
-# debug
+# ── Dependencies ──────────────────────────────────────────────────────────────
+/node_modules
+
+# ── Environment Files ─────────────────────────────────────────────────────────
+.env
+.env.local
+.env.development
+.env.production
+.env.*
+.env.*.local                    # ← ADDED: catches .env.development.local, etc
+
+# ── Terraform ─────────────────────────────────────────────────────────────────
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+!*.tfvars.example        # ← KEEP example files (they have no real secrets)
+crash.log
+crash.*.log                      # ← ADDED: catches crash.123456789.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+terraform.tfstate.backup          # ← ADDED: explicit backup files
+*.backup                          # ← ADDED: any backup files
+
+# ── Cloudflare / Vercel ───────────────────────────────────────────────────────
+.vercel
+.wrangler
+wrangler.toml                    # ← ADDED: often contains account ID and secrets
+
+# ── Database ──────────────────────────────────────────────────────────────────
+*.sql                             # ← ADDED: database dumps/schemas (if they contain data)
+!axio_schema.sql                  # ← ADDED: EXCEPTION - keep if it's just schema without data
+                                  #     (remove the '!' if this contains real data)
+
+# ── Project Specific ──────────────────────────────────────────────────────────
+Note.txt                          # ← ADDED: if it contains any notes/secrets
+infrastructure/                   # ← ADDED: entire infrastructure folder
+!infrastructure/README.md         # ← ADDED: EXCEPTION - keep READMEs
+!infrastructure/**/*.tfvars.example # ← ADDED: EXCEPTION - keep example files
+!infrastructure/**/README.md      # ← ADDED: EXCEPTION - keep all READMEs
+!infrastructure/scripts/          # ← ADDED: EXCEPTION - keep scripts (if safe)
+
+# ── Debug Logs ────────────────────────────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+logs/
+*.log
 
-# env files
-.env*
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
 
-# vercel
-.vercel
+# ── Build ─────────────────────────────────────────────────────────────────────
+dist/
+build/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-node_modules
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+package-lock.json
+pnpm-lock.yaml                    # ← ADDED: you have this in your project
