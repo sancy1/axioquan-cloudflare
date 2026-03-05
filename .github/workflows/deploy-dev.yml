@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages (Dev)
+name: Deploy to Render (Dev)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Build and Deploy to Dev
+    name: Build and Deploy to Render
 
     steps:
       # ── Step 1: Checkout Code ───────────────────────────────────────────────
@@ -46,9 +46,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # ── Step 6: Build for Cloudflare Pages ──────────────────────────────────
-      - name: Build Next.js for Cloudflare Pages
-        run: pnpm dlx @cloudflare/next-on-pages
+      # ── Step 6: Build Next.js ────────────────────────────────────────────────
+      - name: Build Next.js app
+        run: pnpm build
         env:
           NODE_ENV: production
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL_DEV }}
@@ -66,10 +66,12 @@ jobs:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           NEXT_PUBLIC_ADMIN_REGISTRATION_KEY: ${{ secrets.NEXT_PUBLIC_ADMIN_REGISTRATION_KEY }}
 
-      # ── Step 7: Deploy to Cloudflare Pages ──────────────────────────────────
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .vercel/output/static --project-name=axio-prod-dev --branch=main
+      # ── Step 7: Deploy to Render ─────────────────────────────────────────────
+      - name: Trigger Render Deploy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          curl -X POST \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache": false}'

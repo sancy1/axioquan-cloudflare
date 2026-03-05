@@ -16,9 +16,9 @@ terraform {
       source  = "hashicorp/null"
       version = "~> 3.2"
     }
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 4.0"
+    render = {
+      source  = "render-oss/render"
+      version = "~> 1.3"
     }
   }
 }
@@ -28,8 +28,9 @@ provider "neon" {
   api_key = var.neon_api_key
 }
 
-provider "cloudflare" {
-  api_token = var.cloudflare_api_token
+provider "render" {
+  api_key  = var.render_api_key
+  owner_id = var.render_owner_id
 }
 
 # ── Neon Database Module ──────────────────────────────────────────────────────
@@ -51,16 +52,15 @@ module "neon" {
   neon_org_id        = var.neon_org_id
 }
 
-# ── Cloudflare Pages Module ───────────────────────────────────────────────────
-module "cloudflare" {
-  source = "../../modules/cloudflare"
+# ── Render Web Service Module ─────────────────────────────────────────────────
+module "render" {
+  source = "../../modules/render"
 
-  cloudflare_account_id = var.cloudflare_account_id
-  project_name          = "axio-prod" 
-  environment           = var.environment
-  github_owner          = var.github_owner
-  github_repo_name      = var.github_repo_name
-  production_branch     = "main"
+  project_name      = var.project_name
+  environment       = var.environment
+  github_owner      = var.github_owner
+  github_repo_name  = var.github_repo_name
+  production_branch = "main"
 
   database_url    = var.target_db_connection_uri
   nextauth_secret = var.nextauth_secret

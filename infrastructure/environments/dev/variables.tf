@@ -42,16 +42,16 @@ variable "neon_region" {
   default     = "aws-us-east-1"
 }
 
-# ── Cloudflare ────────────────────────────────────────────────────────────────
-variable "cloudflare_account_id" {
-  description = "Cloudflare account ID"
-  type        = string
-}
-
-variable "cloudflare_api_token" {
-  description = "Cloudflare API token with Pages permissions"
+# ── Render ────────────────────────────────────────────────────────────────────
+variable "render_api_key" {
+  description = "Render API key"
   type        = string
   sensitive   = true
+}
+
+variable "render_owner_id" {
+  description = "Render owner/team ID"
+  type        = string
 }
 
 # ── GitHub ────────────────────────────────────────────────────────────────────
@@ -159,10 +159,4 @@ variable "environment" {
     condition     = contains(["dev", "staging", "prod"], var.environment)
     error_message = "Must be dev, staging, or prod."
   }
-}
-
-variable "custom_domain" {
-  description = "Custom domain (optional)"
-  type        = string
-  default     = ""
 }
