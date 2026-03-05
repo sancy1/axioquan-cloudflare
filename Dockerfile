@@ -22,6 +22,21 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# Dummy values for build time only — real values injected at runtime by Render
+ENV DATABASE_URL=postgresql://placeholder:placeholder@placeholder/placeholder
+ENV NEXTAUTH_SECRET=placeholder-secret-for-build-only
+ENV NEXTAUTH_URL=https://placeholder.onrender.com
+ENV CLOUDINARY_CLOUD_NAME=placeholder
+ENV CLOUDINARY_API_KEY=placeholder
+ENV CLOUDINARY_API_SECRET=placeholder
+ENV SMTP_HOST=placeholder
+ENV SMTP_PORT=587
+ENV SMTP_USER=placeholder
+ENV SMTP_PASSWORD=placeholder
+ENV SMTP_FROM=placeholder
+ENV GOOGLE_CLIENT_ID=placeholder
+ENV GOOGLE_CLIENT_SECRET=placeholder
+
 RUN pnpm build
 
 # ── Stage 3: Local Development ────────────────────────────────────────────────
