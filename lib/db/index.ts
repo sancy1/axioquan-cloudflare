@@ -1,18 +1,23 @@
-
-// /lib/db/index.ts:
+// /lib/db/index.ts
 
 import { neon } from '@neondatabase/serverless';
 
-// Check if DATABASE_URL exists
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is not set');
+// Allow build to succeed without DATABASE_URL
+// Real value is injected by Render at runtime
+const DATABASE_URL = process.env.DATABASE_URL;
+
+if (!DATABASE_URL && process.env.NODE_ENV === 'production') {
+  console.warn('⚠️ [BUILD] DATABASE_URL not set - skipping connection at build time');
 }
 
-// Create and export the sql instance
-export const sql = neon(process.env.DATABASE_URL);
+// Only create connection if DATABASE_URL exists
+export const sql = DATABASE_URL ? neon(DATABASE_URL) : null as any;
 
-// Optional: Add connection test helper
+// Connection test helper
 export async function testConnection() {
+  if (!DATABASE_URL) {
+    return { success: false, error: 'DATABASE_URL not set' };
+  }
   try {
     const result = await sql`SELECT 1 as test_value, NOW() as current_time`;
     return { success: true, data: result };

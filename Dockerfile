@@ -22,20 +22,11 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Dummy values for build time only — real values injected at runtime by Render
-ENV DATABASE_URL=postgresql://placeholder:placeholder@placeholder/placeholder
-ENV NEXTAUTH_SECRET=placeholder-secret-for-build-only
+# Dummy DATABASE_URL for build time only
+# Real value injected by Render at runtime
+ENV DATABASE_URL=postgresql://build:build@build/build
+ENV NEXTAUTH_SECRET=build-time-placeholder
 ENV NEXTAUTH_URL=https://placeholder.onrender.com
-ENV CLOUDINARY_CLOUD_NAME=placeholder
-ENV CLOUDINARY_API_KEY=placeholder
-ENV CLOUDINARY_API_SECRET=placeholder
-ENV SMTP_HOST=placeholder
-ENV SMTP_PORT=587
-ENV SMTP_USER=placeholder
-ENV SMTP_PASSWORD=placeholder
-ENV SMTP_FROM=placeholder
-ENV GOOGLE_CLIENT_ID=placeholder
-ENV GOOGLE_CLIENT_SECRET=placeholder
 
 RUN pnpm build
 
@@ -68,8 +59,6 @@ CMD ["pnpm", "dev"]
 # THIS MUST BE LAST — Render uses the final stage by default
 FROM node:20-alpine AS production
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -80,13 +69,14 @@ ENV HOSTNAME="0.0.0.0"
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+# With output: standalone, Next.js creates a self-contained server
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 
 EXPOSE 10000
 
-CMD ["pnpm", "start", "--", "-p", "10000"]
+# Standalone mode uses node server.js directly — no pnpm needed
+CMD ["node", "server.js"]
