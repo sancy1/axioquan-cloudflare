@@ -1,0 +1,58 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Next.js build output
+.next
+out
+build
+dist
+
+# Environment files (never copy secrets into image)
+.env
+.env.local
+.env.development
+.env.production
+.env.*
+
+# Terraform (not needed in Docker image)
+infrastructure/
+**/.terraform
+*.tfstate
+*.tfvars
+*.tfvars.json
+
+# Git
+.git
+.gitignore
+.github
+
+# Docker files themselves
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+.pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+README.md
+*.md
+axio_schema.sql
+Note.txt
+generate-secret.js
+wrangler.toml

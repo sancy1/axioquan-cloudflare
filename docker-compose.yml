@@ -1,0 +1,43 @@
+
+# docker-compose.yml
+# Local development only — production runs on Cloudflare Pages
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner        # uses the dev runner stage
+    container_name: axioquan-dev
+    ports:
+      - "3000:3000"         # Next.js
+      - "3001:3001"         # Socket.io
+    volumes:
+      - .:/app              # hot reload — maps local code into container
+      - /app/node_modules   # prevents local node_modules overwriting container's
+      - /app/.next          # prevents .next folder conflicts
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - NEXT_PUBLIC_ADMIN_REGISTRATION_KEY=${NEXT_PUBLIC_ADMIN_REGISTRATION_KEY}
+    env_file:
+      - .env.local          # reads your existing .env.local automatically
+    restart: unless-stopped
+
+networks:
+  default:
+    name: axioquan-network

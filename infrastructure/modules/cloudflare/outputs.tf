@@ -1,4 +1,3 @@
-
 # infrastructure/modules/cloudflare/outputs.tf
 
 output "pages_project_name" {
@@ -22,6 +21,6 @@ output "app_url" {
 }
 
 output "custom_domain_status" {
-  description = "Custom domain status (if configured)"
-  value       = length(cloudflare_pages_domain.custom) > 0 ? cloudflare_pages_domain.custom[0].status : "No custom domain — using auto-generated .pages.dev"
+  description = "Custom domain status"
+  value       = "No custom domain configured — using auto-generated .pages.dev"
 }
