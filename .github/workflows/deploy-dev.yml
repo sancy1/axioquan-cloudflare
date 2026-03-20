@@ -65,6 +65,8 @@ jobs:
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           NEXT_PUBLIC_ADMIN_REGISTRATION_KEY: ${{ secrets.NEXT_PUBLIC_ADMIN_REGISTRATION_KEY }}
+          NEXT_PUBLIC_MESSAGING_API_URL: ${{ secrets.NEXT_PUBLIC_MESSAGING_API_URL }}
+          NEXT_PUBLIC_MESSAGING_WS_URL: ${{ secrets.NEXT_PUBLIC_MESSAGING_WS_URL }}
 
       # ── Step 7: Deploy to Render ─────────────────────────────────────────────
       - name: Trigger Render Deploy
