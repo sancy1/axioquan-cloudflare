@@ -782,13 +782,479 @@
 
 
 
-// /src/components/about/about-hero.tsx
+// // /src/components/about/about-hero.tsx
+
+// 'use client';
+
+// import { useEffect, useState, useRef } from 'react';
+// import { motion, useInView, Variants } from 'framer-motion';
+// import { Sparkles, BookOpen, Users, Globe, ArrowRight, Star, Award, Zap } from 'lucide-react';
+// import { Button } from '@/components/ui/button';
+// import Link from 'next/link';
+// import CountUp from 'react-countup';
+
+// interface SiteStats {
+//   activeLearners: number;
+//   expertInstructors: number;
+//   coursesAvailable: number;
+//   averageRating: number;
+// }
+
+// function formatCount(n: number): string {
+//   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M+`;
+//   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K+`;
+//   return n > 0 ? `${n}+` : '—';
+// }
+
+// export default function AboutHero() {
+//   const [stats, setStats] = useState<SiteStats | null>(null);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [particles, setParticles] = useState<Array<{left: string, top: string, delay: number, duration: number}>>([]);
+//   const sectionRef = useRef<HTMLDivElement>(null);
+//   const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
+
+//   useEffect(() => {
+//     fetch('/api/stats')
+//       .then((r) => r.json())
+//       .then((data) => {
+//         setStats(data);
+//         setIsLoading(false);
+//       })
+//       .catch(() => {
+//         setIsLoading(false);
+//       });
+//   }, []);
+
+//   // Generate particles only on client side to avoid hydration mismatch
+//   useEffect(() => {
+//     const newParticles = [...Array(30)].map(() => ({
+//       left: `${Math.random() * 100}%`,
+//       top: `${Math.random() * 100}%`,
+//       delay: Math.random() * 5,
+//       duration: 8 + Math.random() * 15,
+//     }));
+//     setParticles(newParticles);
+//   }, []);
+
+//   const statCards = [
+//     {
+//       icon: <Users className="h-6 w-6" />,
+//       iconBg: 'from-blue-500 to-cyan-500',
+//       cardBg: 'from-blue-500/10 via-transparent to-transparent',
+//       value: stats?.activeLearners || 0,
+//       label: 'Active Learners',
+//       suffix: '+',
+//       delay: 0.4,
+//       color: 'blue',
+//     },
+//     {
+//       icon: <BookOpen className="h-6 w-6" />,
+//       iconBg: 'from-purple-500 to-pink-500',
+//       cardBg: 'from-purple-500/10 via-transparent to-transparent',
+//       value: stats?.coursesAvailable || 0,
+//       label: 'Expert Courses',
+//       suffix: '+',
+//       delay: 0.5,
+//       color: 'purple',
+//     },
+//     {
+//       icon: <Globe className="h-6 w-6" />,
+//       iconBg: 'from-emerald-500 to-teal-500',
+//       cardBg: 'from-emerald-500/10 via-transparent to-transparent',
+//       value: stats?.expertInstructors || 0,
+//       label: 'Expert Instructors',
+//       suffix: '+',
+//       delay: 0.6,
+//       color: 'emerald',
+//     },
+//     {
+//       icon: <Star className="h-6 w-6" />,
+//       iconBg: 'from-amber-500 to-orange-500',
+//       cardBg: 'from-amber-500/10 via-transparent to-transparent',
+//       value: stats?.averageRating || 0,
+//       label: 'Average Rating',
+//       suffix: '★',
+//       delay: 0.7,
+//       color: 'amber',
+//       isRating: true,
+//     },
+//   ];
+
+//   // Fixed variants with proper typing
+//   const containerVariants: Variants = {
+//     hidden: { opacity: 0 },
+//     visible: {
+//       opacity: 1,
+//       transition: {
+//         staggerChildren: 0.1,
+//         delayChildren: 0.2,
+//       },
+//     },
+//   };
+
+//   const itemVariants: Variants = {
+//     hidden: { 
+//       y: 20, 
+//       opacity: 0 
+//     },
+//     visible: { 
+//       y: 0, 
+//       opacity: 1,
+//       transition: { 
+//         type: "spring" as const, 
+//         stiffness: 100, 
+//         damping: 15 
+//       }
+//     },
+//   };
+
+//   return (
+//     <section ref={sectionRef} className="relative px-4 sm:px-6 lg:px-8 pt-32 pb-24 overflow-hidden">
+//       {/* Beautiful Theme Background */}
+//       <div className="absolute inset-0 -z-10">
+//         {/* Base gradient with warm tones */}
+//         <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50" />
+        
+//         {/* Soft organic shapes */}
+//         <motion.div
+//           animate={{
+//             scale: [1, 1.2, 1],
+//             opacity: [0.3, 0.5, 0.3],
+//             x: [0, 30, 0],
+//             y: [0, -20, 0],
+//           }}
+//           transition={{
+//             duration: 12,
+//             repeat: Infinity,
+//             ease: "easeInOut",
+//           }}
+//           className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-r from-blue-200/40 via-purple-200/40 to-pink-200/40 rounded-full blur-3xl"
+//         />
+        
+//         <motion.div
+//           animate={{
+//             scale: [1, 1.3, 1],
+//             opacity: [0.2, 0.4, 0.2],
+//             x: [0, -40, 0],
+//             y: [0, 30, 0],
+//           }}
+//           transition={{
+//             duration: 15,
+//             repeat: Infinity,
+//             ease: "easeInOut",
+//           }}
+//           className="absolute bottom-0 right-0 w-[700px] h-[700px] bg-gradient-to-l from-emerald-200/30 via-teal-200/30 to-cyan-200/30 rounded-full blur-3xl"
+//         />
+
+//         {/* Decorative pattern overlay */}
+//         <div 
+//           className="absolute inset-0 opacity-5"
+//           style={{
+//             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 30 L30 55 L5 30 Z' fill='none' stroke='%23000' stroke-width='0.5'/%3E%3C/svg%3E")`,
+//             backgroundSize: '60px 60px',
+//           }}
+//         />
+
+//         {/* Soft gradient orbs */}
+//         <motion.div
+//           animate={{
+//             scale: [1, 1.1, 1],
+//             opacity: [0.2, 0.3, 0.2],
+//           }}
+//           transition={{
+//             duration: 8,
+//             repeat: Infinity,
+//             ease: "easeInOut",
+//           }}
+//           className="absolute top-20 left-1/4 w-64 h-64 bg-blue-300/30 rounded-full blur-3xl"
+//         />
+        
+//         <motion.div
+//           animate={{
+//             scale: [1, 1.2, 1],
+//             opacity: [0.2, 0.3, 0.2],
+//           }}
+//           transition={{
+//             duration: 10,
+//             repeat: Infinity,
+//             ease: "easeInOut",
+//           }}
+//           className="absolute bottom-20 right-1/4 w-80 h-80 bg-purple-300/30 rounded-full blur-3xl"
+//         />
+
+//         {/* Floating particles */}
+//         {particles.map((particle, i) => (
+//           <motion.div
+//             key={i}
+//             className="absolute w-1 h-1 rounded-full bg-gray-400/20"
+//             style={{
+//               left: particle.left,
+//               top: particle.top,
+//             }}
+//             animate={{
+//               y: [0, -20, 0],
+//               opacity: [0.2, 0.5, 0.2],
+//             }}
+//             transition={{
+//               duration: particle.duration,
+//               repeat: Infinity,
+//               delay: particle.delay,
+//               ease: "easeInOut",
+//             }}
+//           />
+//         ))}
+
+//         {/* Soft radial gradient for depth */}
+//         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.3),_transparent_50%)]" />
+//         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(255,255,255,0.3),_transparent_50%)]" />
+//       </div>
+
+//       <div className="max-w-7xl mx-auto relative z-10">
+//         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+//           {/* Left Column - Content */}
+//           <motion.div
+//             variants={containerVariants}
+//             initial="hidden"
+//             animate={isInView ? "visible" : "hidden"}
+//             className="relative z-10"
+//           >
+//             {/* Animated Badge */}
+//             <motion.div
+//               variants={itemVariants}
+//               // className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 mb-6 group cursor-default"
+//             >
+//               {/* <motion.div
+//                 animate={{ rotate: 360 }}
+//                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+//               >
+//                 <Sparkles className="h-4 w-4 text-blue-600" />
+//               </motion.div>
+//               <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+//                 Transforming Education Since 2023
+//               </span> */}
+//             </motion.div>
+
+//             {/* Main Heading */}
+//             <motion.h1
+//               variants={itemVariants}
+//               className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8"
+//             >
+//               <span className="text-gray-800">Redefining</span>
+//               <br />
+//               <span className="text-gray-800 relative">
+//                 Learning Experiences
+//                 <motion.span
+//                   initial={{ width: 0 }}
+//                   animate={isInView ? { width: "100%" } : { width: 0 }}
+//                   transition={{ duration: 1, delay: 1 }}
+//                   className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full"
+//                 />
+//               </span>
+//             </motion.h1>
+
+//             {/* Description */}
+//             <motion.p
+//               variants={itemVariants}
+//               className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed max-w-xl mt-4"
+//             >
+//               At AxioQuan, we're building the future of education a platform where knowledge meets innovation,
+//               and learning becomes an immersive journey of discovery and growth.
+//             </motion.p>
+
+//             {/* Dark Button */}
+//             <motion.div
+//               variants={itemVariants}
+//               className="flex flex-col sm:flex-row gap-4"
+//             >
+//               <Link href="/courses">
+//                 <motion.div
+//                   whileHover={{ scale: 1.05 }}
+//                   whileTap={{ scale: 0.95 }}
+//                 >
+//                   <Button className="relative group px-8 py-4 text-lg rounded-full overflow-hidden cursor-pointer bg-gray-900 hover:bg-gray-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+//                     <span className="relative flex items-center gap-2">
+//                       Explore Courses
+//                       <motion.span
+//                         animate={{ x: [0, 5, 0] }}
+//                         transition={{ duration: 1.5, repeat: Infinity }}
+//                       >
+//                         <ArrowRight className="h-5 w-5" />
+//                       </motion.span>
+//                     </span>
+//                   </Button>
+//                 </motion.div>
+//               </Link>
+//             </motion.div>
+//           </motion.div>
+
+//           {/* Right Column - Stats Grid */}
+//           <motion.div
+//             variants={containerVariants}
+//             initial="hidden"
+//             animate={isInView ? "visible" : "hidden"}
+//             className="relative"
+//           >
+//             {/* Stats Grid */}
+//             <div className="grid grid-cols-2 gap-4">
+//               {statCards.map((card, index) => (
+//                 <motion.div
+//                   key={card.label}
+//                   variants={itemVariants}
+//                   whileHover={{ y: -5, scale: 1.02 }}
+//                   className={`relative group ${index % 2 === 1 ? 'mt-8' : ''}`}
+//                 >
+//                   {/* Glow Effect */}
+//                   <div className={`absolute inset-0 bg-gradient-to-br ${card.iconBg} opacity-0 group-hover:opacity-20 rounded-2xl blur-xl transition-all duration-500`} />
+                  
+//                   {/* Card */}
+//                   <div className="relative bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
+//                     {/* Background Pattern */}
+//                     <div className={`absolute inset-0 bg-gradient-to-br ${card.cardBg} opacity-50`} />
+                    
+//                     {/* Animated Icon */}
+//                     <div className="relative mb-4">
+//                       <motion.div
+//                         animate={{
+//                           rotate: [0, 360],
+//                         }}
+//                         transition={{
+//                           duration: 20,
+//                           repeat: Infinity,
+//                           ease: "linear",
+//                         }}
+//                         className={`absolute inset-0 bg-gradient-to-br ${card.iconBg} rounded-xl blur-md opacity-20`}
+//                       />
+//                       <div className={`relative w-12 h-12 rounded-xl bg-gradient-to-br ${card.iconBg} flex items-center justify-center text-white shadow-lg`}>
+//                         {card.icon}
+//                       </div>
+//                     </div>
+
+//                     {/* Value */}
+//                     <div className="mb-1">
+//                       <motion.div
+//                         key={card.value}
+//                         initial={{ scale: 0.5 }}
+//                         animate={{ scale: 1 }}
+//                         transition={{
+//                           type: "spring",
+//                           stiffness: 200,
+//                           damping: 15,
+//                           delay: 0.2 + card.delay,
+//                         }}
+//                       >
+//                         <span className={`text-3xl font-bold bg-gradient-to-br ${card.iconBg} bg-clip-text text-transparent`}>
+//                           {isLoading ? (
+//                             <span className="inline-block w-16 h-8 bg-gray-200 animate-pulse rounded" />
+//                           ) : (
+//                             <CountUp
+//                               end={card.isRating ? card.value : card.value}
+//                               duration={2.5}
+//                               delay={0.5 + card.delay}
+//                               decimals={card.isRating ? 1 : 0}
+//                               suffix={card.suffix}
+//                             />
+//                           )}
+//                         </span>
+//                       </motion.div>
+//                     </div>
+
+//                     {/* Label */}
+//                     <p className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+//                       {card.label}
+//                     </p>
+
+//                     {/* Decorative Progress Bar */}
+//                     <motion.div
+//                       initial={{ width: 0 }}
+//                       animate={isInView ? { width: "60px" } : { width: 0 }}
+//                       transition={{ duration: 1, delay: 0.8 + card.delay }}
+//                       className={`h-0.5 bg-gradient-to-r ${card.iconBg} rounded-full mt-3`}
+//                     />
+//                   </div>
+//                 </motion.div>
+//               ))}
+//             </div>
+
+//             {/* Floating Decorative Elements */}
+//             <motion.div
+//               animate={{
+//                 y: [0, -20, 0],
+//                 rotate: [0, 10, 0],
+//               }}
+//               transition={{
+//                 duration: 5,
+//                 repeat: Infinity,
+//                 ease: "easeInOut",
+//               }}
+//               className="absolute -top-6 -right-6 w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl shadow-xl flex items-center justify-center text-white text-2xl font-bold"
+//             >
+//               <Award className="h-8 w-8" />
+//             </motion.div>
+
+//             <motion.div
+//               animate={{
+//                 y: [0, 20, 0],
+//                 rotate: [0, -10, 0],
+//               }}
+//               transition={{
+//                 duration: 6,
+//                 repeat: Infinity,
+//                 ease: "easeInOut",
+//                 delay: 1,
+//               }}
+//               className="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-pink-500 to-orange-500 rounded-xl shadow-xl flex items-center justify-center text-white text-xl font-bold"
+//             >
+//               <Zap className="h-6 w-6" />
+//             </motion.div>
+//           </motion.div>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 'use client';
 
+// /src/components/about/about-hero.tsx
+
 import { useEffect, useState, useRef } from 'react';
 import { motion, useInView, Variants } from 'framer-motion';
-import { Sparkles, BookOpen, Users, Globe, ArrowRight, Star, Award, Zap } from 'lucide-react';
+import { BookOpen, Users, Globe, ArrowRight, Award, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import CountUp from 'react-countup';
@@ -797,287 +1263,112 @@ interface SiteStats {
   activeLearners: number;
   expertInstructors: number;
   coursesAvailable: number;
-  averageRating: number;
-}
-
-function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M+`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K+`;
-  return n > 0 ? `${n}+` : '—';
 }
 
 export default function AboutHero() {
   const [stats, setStats] = useState<SiteStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [particles, setParticles] = useState<Array<{left: string, top: string, delay: number, duration: number}>>([]);
+  const [particles, setParticles] = useState<Array<{ left: string; top: string; delay: number; duration: number }>>([]);
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
 
   useEffect(() => {
     fetch('/api/stats')
       .then((r) => r.json())
-      .then((data) => {
-        setStats(data);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsLoading(false);
-      });
+      .then((data) => { setStats(data); setIsLoading(false); })
+      .catch(() => setIsLoading(false));
   }, []);
 
-  // Generate particles only on client side to avoid hydration mismatch
   useEffect(() => {
-    const newParticles = [...Array(30)].map(() => ({
+    setParticles([...Array(30)].map(() => ({
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
       delay: Math.random() * 5,
       duration: 8 + Math.random() * 15,
-    }));
-    setParticles(newParticles);
+    })));
   }, []);
 
+  // Average rating removed
   const statCards = [
-    {
-      icon: <Users className="h-6 w-6" />,
-      iconBg: 'from-blue-500 to-cyan-500',
-      cardBg: 'from-blue-500/10 via-transparent to-transparent',
-      value: stats?.activeLearners || 0,
-      label: 'Active Learners',
-      suffix: '+',
-      delay: 0.4,
-      color: 'blue',
-    },
-    {
-      icon: <BookOpen className="h-6 w-6" />,
-      iconBg: 'from-purple-500 to-pink-500',
-      cardBg: 'from-purple-500/10 via-transparent to-transparent',
-      value: stats?.coursesAvailable || 0,
-      label: 'Expert Courses',
-      suffix: '+',
-      delay: 0.5,
-      color: 'purple',
-    },
-    {
-      icon: <Globe className="h-6 w-6" />,
-      iconBg: 'from-emerald-500 to-teal-500',
-      cardBg: 'from-emerald-500/10 via-transparent to-transparent',
-      value: stats?.expertInstructors || 0,
-      label: 'Expert Instructors',
-      suffix: '+',
-      delay: 0.6,
-      color: 'emerald',
-    },
-    {
-      icon: <Star className="h-6 w-6" />,
-      iconBg: 'from-amber-500 to-orange-500',
-      cardBg: 'from-amber-500/10 via-transparent to-transparent',
-      value: stats?.averageRating || 0,
-      label: 'Average Rating',
-      suffix: '★',
-      delay: 0.7,
-      color: 'amber',
-      isRating: true,
-    },
+    { icon: <Users className="h-6 w-6" />, iconBg: 'from-blue-500 to-cyan-500', value: stats?.activeLearners || 0, label: 'Active Learners', delay: 0.4 },
+    { icon: <BookOpen className="h-6 w-6" />, iconBg: 'from-violet-500 to-pink-500', value: stats?.coursesAvailable || 0, label: 'Expert Courses', delay: 0.5 },
+    { icon: <Globe className="h-6 w-6" />, iconBg: 'from-emerald-500 to-teal-500', value: stats?.expertInstructors || 0, label: 'Expert Instructors', delay: 0.6 },
   ];
 
-  // Fixed variants with proper typing
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
   };
-
   const itemVariants: Variants = {
-    hidden: { 
-      y: 20, 
-      opacity: 0 
-    },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { 
-        type: "spring" as const, 
-        stiffness: 100, 
-        damping: 15 
-      }
-    },
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100, damping: 15 } },
   };
 
   return (
-    <section ref={sectionRef} className="relative px-4 sm:px-6 lg:px-8 pt-32 pb-24 overflow-hidden">
-      {/* Beautiful Theme Background */}
-      <div className="absolute inset-0 -z-10">
-        {/* Base gradient with warm tones */}
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50" />
-        
-        {/* Soft organic shapes */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-            x: [0, 30, 0],
-            y: [0, -20, 0],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-r from-blue-200/40 via-purple-200/40 to-pink-200/40 rounded-full blur-3xl"
-        />
-        
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-            x: [0, -40, 0],
-            y: [0, 30, 0],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-0 right-0 w-[700px] h-[700px] bg-gradient-to-l from-emerald-200/30 via-teal-200/30 to-cyan-200/30 rounded-full blur-3xl"
-        />
+    <section ref={sectionRef} className="relative px-4 sm:px-6 lg:px-8 pt-32 pb-24 overflow-hidden bg-[#0d0d0d]">
 
-        {/* Decorative pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-5"
+      {/* ── HERO: violet dot grid ─────────────────────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute inset-0 opacity-[0.06]"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 30 L30 55 L5 30 Z' fill='none' stroke='%23000' stroke-width='0.5'/%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px',
+            backgroundImage: `radial-gradient(circle, rgba(139,92,246,1) 1.5px, transparent 1.5px)`,
+            backgroundSize: '36px 36px',
           }}
         />
-
-        {/* Soft gradient orbs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.2, 0.3, 0.2],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute top-20 left-1/4 w-64 h-64 bg-blue-300/30 rounded-full blur-3xl"
-        />
-        
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.3, 0.2],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-20 right-1/4 w-80 h-80 bg-purple-300/30 rounded-full blur-3xl"
-        />
-
+        {/* Violet glow orbs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-900/10 rounded-full blur-3xl" />
         {/* Floating particles */}
-        {particles.map((particle, i) => (
+        {particles.map((p, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 rounded-full bg-gray-400/20"
-            style={{
-              left: particle.left,
-              top: particle.top,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.2, 0.5, 0.2],
-            }}
-            transition={{
-              duration: particle.duration,
-              repeat: Infinity,
-              delay: particle.delay,
-              ease: "easeInOut",
-            }}
+            className="absolute w-1 h-1 rounded-full bg-violet-400/20"
+            style={{ left: p.left, top: p.top }}
+            animate={{ y: [0, -20, 0], opacity: [0.2, 0.5, 0.2] }}
+            transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
           />
         ))}
-
-        {/* Soft radial gradient for depth */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.3),_transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(255,255,255,0.3),_transparent_50%)]" />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-          {/* Left Column - Content */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            className="relative z-10"
-          >
-            {/* Animated Badge */}
-            <motion.div
-              variants={itemVariants}
-              // className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 mb-6 group cursor-default"
-            >
-              {/* <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="h-4 w-4 text-blue-600" />
-              </motion.div>
-              <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Transforming Education Since 2023
-              </span> */}
+
+          {/* Left — Content */}
+          <motion.div variants={containerVariants} initial="hidden" animate={isInView ? 'visible' : 'hidden'} className="relative z-10">
+
+            {/* Badge */}
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 bg-violet-600/20 border border-violet-500/30 rounded-full px-3 py-1 mb-6">
+              <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+              <span className="text-violet-300 text-xs font-medium tracking-wide uppercase">e-Learning Platform</span>
             </motion.div>
 
-            {/* Main Heading */}
-            <motion.h1
-              variants={itemVariants}
-              className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8"
-            >
-              <span className="text-gray-800">Redefining</span>
-              <br />
-              <span className="text-gray-800 relative">
+            <motion.h1 variants={itemVariants} className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8">
+              <span className="text-white">Redefining</span><br />
+              <span className="text-white relative">
                 Learning Experiences
                 <motion.span
                   initial={{ width: 0 }}
-                  animate={isInView ? { width: "100%" } : { width: 0 }}
+                  animate={isInView ? { width: '100%' } : { width: 0 }}
                   transition={{ duration: 1, delay: 1 }}
-                  className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full"
+                  className="absolute -bottom-3 left-0 h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 rounded-full"
                 />
               </span>
             </motion.h1>
 
-            {/* Description */}
-            <motion.p
-              variants={itemVariants}
-              className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed max-w-xl mt-4"
-            >
+            <motion.p variants={itemVariants} className="text-lg md:text-xl text-gray-400 mb-8 leading-relaxed max-w-xl mt-4">
               At AxioQuan, we're building the future of education — a platform where knowledge meets innovation,
               and learning becomes an immersive journey of discovery and growth.
             </motion.p>
 
-            {/* Dark Button */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-col sm:flex-row gap-4"
-            >
+            <motion.div variants={itemVariants}>
               <Link href="/courses">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button className="relative group px-8 py-4 text-lg rounded-full overflow-hidden cursor-pointer bg-gray-900 hover:bg-gray-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                    <span className="relative flex items-center gap-2">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button className="px-8 py-4 text-lg rounded-full cursor-pointer bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/40 transition-all duration-300">
+                    <span className="flex items-center gap-2">
                       Explore Courses
-                      <motion.span
-                        animate={{ x: [0, 5, 0] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      >
+                      <motion.span animate={{ x: [0, 5, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
                         <ArrowRight className="h-5 w-5" />
                       </motion.span>
                     </span>
@@ -1087,86 +1378,36 @@ export default function AboutHero() {
             </motion.div>
           </motion.div>
 
-          {/* Right Column - Stats Grid */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            className="relative"
-          >
-            {/* Stats Grid */}
+          {/* Right — 3 stat cards */}
+          <motion.div variants={containerVariants} initial="hidden" animate={isInView ? 'visible' : 'hidden'} className="relative">
             <div className="grid grid-cols-2 gap-4">
               {statCards.map((card, index) => (
                 <motion.div
                   key={card.label}
                   variants={itemVariants}
                   whileHover={{ y: -5, scale: 1.02 }}
-                  className={`relative group ${index % 2 === 1 ? 'mt-8' : ''}`}
+                  className={`relative group ${index === 1 ? 'mt-8' : ''} ${index === 2 ? 'col-span-2 sm:col-span-1' : ''}`}
                 >
-                  {/* Glow Effect */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${card.iconBg} opacity-0 group-hover:opacity-20 rounded-2xl blur-xl transition-all duration-500`} />
-                  
-                  {/* Card */}
-                  <div className="relative bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                    {/* Background Pattern */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${card.cardBg} opacity-50`} />
-                    
-                    {/* Animated Icon */}
+                  <div className="relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/8 transition-all duration-300 overflow-hidden backdrop-blur-sm">
                     <div className="relative mb-4">
-                      <motion.div
-                        animate={{
-                          rotate: [0, 360],
-                        }}
-                        transition={{
-                          duration: 20,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                        className={`absolute inset-0 bg-gradient-to-br ${card.iconBg} rounded-xl blur-md opacity-20`}
-                      />
                       <div className={`relative w-12 h-12 rounded-xl bg-gradient-to-br ${card.iconBg} flex items-center justify-center text-white shadow-lg`}>
                         {card.icon}
                       </div>
                     </div>
-
-                    {/* Value */}
                     <div className="mb-1">
-                      <motion.div
-                        key={card.value}
-                        initial={{ scale: 0.5 }}
-                        animate={{ scale: 1 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 200,
-                          damping: 15,
-                          delay: 0.2 + card.delay,
-                        }}
-                      >
-                        <span className={`text-3xl font-bold bg-gradient-to-br ${card.iconBg} bg-clip-text text-transparent`}>
-                          {isLoading ? (
-                            <span className="inline-block w-16 h-8 bg-gray-200 animate-pulse rounded" />
-                          ) : (
-                            <CountUp
-                              end={card.isRating ? card.value : card.value}
-                              duration={2.5}
-                              delay={0.5 + card.delay}
-                              decimals={card.isRating ? 1 : 0}
-                              suffix={card.suffix}
-                            />
-                          )}
-                        </span>
-                      </motion.div>
+                      <span className={`text-3xl font-bold bg-gradient-to-br ${card.iconBg} bg-clip-text text-transparent`}>
+                        {isLoading ? (
+                          <span className="inline-block w-16 h-8 bg-white/10 animate-pulse rounded" />
+                        ) : (
+                          <CountUp end={card.value} duration={2.5} delay={0.5 + card.delay} decimals={0} suffix="+" />
+                        )}
+                      </span>
                     </div>
-
-                    {/* Label */}
-                    <p className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
-                      {card.label}
-                    </p>
-
-                    {/* Decorative Progress Bar */}
+                    <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">{card.label}</p>
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={isInView ? { width: "60px" } : { width: 0 }}
+                      animate={isInView ? { width: '60px' } : { width: 0 }}
                       transition={{ duration: 1, delay: 0.8 + card.delay }}
                       className={`h-0.5 bg-gradient-to-r ${card.iconBg} rounded-full mt-3`}
                     />
@@ -1175,38 +1416,22 @@ export default function AboutHero() {
               ))}
             </div>
 
-            {/* Floating Decorative Elements */}
             <motion.div
-              animate={{
-                y: [0, -20, 0],
-                rotate: [0, 10, 0],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="absolute -top-6 -right-6 w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl shadow-xl flex items-center justify-center text-white text-2xl font-bold"
+              animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -top-6 -right-6 w-20 h-20 bg-gradient-to-br from-violet-600 to-purple-600 rounded-2xl shadow-xl shadow-violet-900/40 flex items-center justify-center text-white"
             >
               <Award className="h-8 w-8" />
             </motion.div>
-
             <motion.div
-              animate={{
-                y: [0, 20, 0],
-                rotate: [0, -10, 0],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 1,
-              }}
-              className="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-pink-500 to-orange-500 rounded-xl shadow-xl flex items-center justify-center text-white text-xl font-bold"
+              animate={{ y: [0, 20, 0], rotate: [0, -10, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+              className="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-pink-600 to-orange-500 rounded-xl shadow-xl flex items-center justify-center text-white"
             >
               <Zap className="h-6 w-6" />
             </motion.div>
           </motion.div>
+
         </div>
       </div>
     </section>

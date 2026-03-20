@@ -1327,57 +1327,29 @@ function StatsCards({ stats }: { stats: { courses: number; categories: number; f
 
 // Animated Gradient Background Component
 function AnimatedGradientBackground({ children }: { children: React.ReactNode }) {
-  // return (
-  //   <div className="relative w-full overflow-hidden">
-  //     {/* <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-gray-900"> */}
-  //       <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-gray-900">
-        
-  //       {/* Glow orbs — unchanged */}
-  //       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-  //       <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-  //       <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-cyan-600/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-  //       <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-indigo-600/20 rounded-full blur-3xl animate-pulse delay-1500"></div>
-
-  //       {/* Checky grid — replaces the old faint grid */}
-  //       <div
-  //         className="absolute inset-0"
-  //         style={{
-  //           // backgroundImage: `linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-  //           //                   linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)`,
-  //           backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-  //                 linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-  //           backgroundSize: '40px 40px',
-  //         }}
-  //       />
-  //     </div>
-
-  //     <div className="relative z-10">
-  //       {children}
-  //     </div>
-  //   </div>
-  // );
-
-
   return (
-    <div className="relative w-full overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-gray-900">
+    <div className="relative w-full overflow-hidden bg-[#0d0d0d]">
 
-        {/* Glow orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-teal-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-green-600/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-        <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1500"></div>
+      {/* Violet grid — identical to login/signup form panel */}
+      <div
+        className="absolute inset-0 opacity-[0.14] pointer-events-none"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(139,92,246,1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(139,92,246,1) 1px, transparent 1px)
+          `,
+          backgroundSize: '48px 48px',
+        }}
+      />
 
-        {/* Checky grid */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-            backgroundSize: '40px 40px',
-          }}
-        />
-      </div>
+      {/* Dark purple gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-950/60 via-purple-950/40 to-[#0d0d0d]/80 pointer-events-none" />
+
+      {/* Glow orbs — purple/violet tones */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/15 rounded-full blur-3xl animate-pulse pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-600/12 rounded-full blur-3xl animate-pulse delay-1000 pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-indigo-600/12 rounded-full blur-3xl animate-pulse delay-500 pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-violet-800/15 rounded-full blur-3xl animate-pulse delay-1500 pointer-events-none" />
 
       <div className="relative z-10">
         {children}
@@ -1385,6 +1357,7 @@ function AnimatedGradientBackground({ children }: { children: React.ReactNode })
     </div>
   );
 }
+
 
 // Helper function to convert Course type to compatible type for CourseCard
 const convertToCourseData = (course: Course) => {
