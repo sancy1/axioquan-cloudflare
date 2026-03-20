@@ -208,7 +208,7 @@ export default function AssessmentDetailPage() {
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <Link href="/dashboard/instructor/quizzes">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="cursor-pointer">
               <ArrowLeft className="h-4 w-4 mr-1" />
               Back to Assessments
             </Button>
@@ -235,7 +235,7 @@ export default function AssessmentDetailPage() {
             {/* Back Button - At the very top */}
       <div>
         <Link href="/dashboard/instructor/quizzes">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="cursor-pointer"> 
             <ArrowLeft className="h-4 w-4 mr-1" />
             <span className="hidden sm:inline">Back to Assessments</span>
             <span className="sm:hidden">Back</span>
@@ -269,25 +269,25 @@ export default function AssessmentDetailPage() {
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2">
         <Link href={`/dashboard/instructor/quizzes/${assessmentId}/edit?tab=questions`}>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="cursor-pointer">
             <Plus className="h-4 w-4 mr-2" />
             Add Questions
           </Button>
         </Link>
         
         <Link href={`/dashboard/instructor/quizzes/${assessmentId}/edit`}>
-          <Button size="sm">
+          <Button size="sm" className="cursor-pointer">
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
         </Link>
         
-        <Button variant="outline" size="sm" onClick={handleDuplicateAssessment}>
+        <Button variant="outline" size="sm" className="cursor-pointer" onClick={handleDuplicateAssessment}>
           <Copy className="h-4 w-4 mr-2" />
           Duplicate
         </Button>
         
-        <Button variant="destructive" size="sm" onClick={handleDeleteAssessment}>
+        <Button variant="destructive" size="sm" onClick={handleDeleteAssessment} className="cursor-pointer">
           <Trash2 className="h-4 w-4 mr-2" />
           Delete
         </Button>
@@ -488,37 +488,37 @@ export default function AssessmentDetailPage() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Link href={`/dashboard/instructor/quizzes/${assessmentId}/edit?tab=questions`} className="block">
-                    <Button variant="outline" className="w-full justify-start text-xs sm:text-sm h-9 sm:h-10">
+                    <Button variant="outline" className="w-full cursor-pointer justify-start text-xs sm:text-sm h-9 sm:h-10">
                       <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                       Add More Questions
                     </Button>
                   </Link>
                   
                   <Link href={`/dashboard/instructor/quizzes/${assessmentId}/edit`} className="block">
-                    <Button variant="outline" className="w-full justify-start text-xs sm:text-sm h-9 sm:h-10">
+                    <Button variant="outline" className="w-full cursor-pointer justify-start text-xs sm:text-sm h-9 sm:h-10">
                       <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                       Edit Assessment Settings
                     </Button>
                   </Link>
                   
                   <Link href={`/dashboard/instructor/quizzes/${assessmentId}/edit?tab=questions`} className="block">
-                    <Button variant="outline" className="w-full justify-start text-xs sm:text-sm h-9 sm:h-10">
+                    <Button variant="outline" className="w-full cursor-pointer justify-start text-xs sm:text-sm h-9 sm:h-10">
                       <FileQuestion className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                       Manage All Questions
                     </Button>
                   </Link>
                   
-                  <Button variant="outline" className="w-full justify-start text-xs sm:text-sm h-9 sm:h-10" onClick={handleDuplicateAssessment}>
+                  <Button variant="outline" className="w-full cursor-pointer justify-start text-xs sm:text-sm h-9 sm:h-10" onClick={handleDuplicateAssessment}>
                     <Copy className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     Duplicate Assessment
                   </Button>
                   
-                  <Button variant="outline" className="w-full justify-start text-xs sm:text-sm h-9 sm:h-10">
+                  <Button variant="outline" className="w-full cursor-pointer justify-start text-xs sm:text-sm h-9 sm:h-10">
                     <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     Export Questions
                   </Button>
                   
-                  <Button variant="outline" className="w-full justify-start text-xs sm:text-sm h-9 sm:h-10">
+                  <Button variant="outline" className="w-full cursor-pointer justify-start text-xs sm:text-sm h-9 sm:h-10">
                     <Share2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     Share Assessment
                   </Button>
@@ -702,15 +702,15 @@ export default function AssessmentDetailPage() {
                 <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">👁️</div>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">Student Preview</h3>
                 <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 max-w-md mx-auto">
-                  This feature will be available in Phase 2 when student quiz-taking is implemented.
+                  {/* This feature will be available in Phase 2 when student quiz-taking is implemented. */}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
-                  <Button disabled size="sm" className="sm:text-sm">
+                  <Button disabled size="sm" className="sm:text-sm cursor-pointer">
                     <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     Start Preview
                   </Button>
                   <Link href={`/dashboard/instructor/quizzes/${assessmentId}/edit?tab=questions`}>
-                    <Button variant="outline" size="sm" className="sm:text-sm">
+                    <Button variant="outline" size="sm" className="sm:text-sm cursor-pointer">
                       <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                       Edit Questions
                     </Button>

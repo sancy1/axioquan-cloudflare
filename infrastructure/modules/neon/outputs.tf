@@ -1,3 +1,5 @@
+# infrastructure/modules/neon/outputs.tf
+
 output "project_id" {
   value = neon_project.this.id
 }

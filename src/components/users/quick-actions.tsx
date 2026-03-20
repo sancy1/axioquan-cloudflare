@@ -26,7 +26,7 @@ export function QuickActions({ userRole, onAction }: QuickActionsProps) {
             onClick={() => onAction(item.action)}
             variant="outline"
             size="sm"
-            className="w-full justify-start text-sm"
+            className="w-full cursor-pointer justify-start text-sm"
           >
             <span className="mr-2">{item.icon}</span>
             {item.label}

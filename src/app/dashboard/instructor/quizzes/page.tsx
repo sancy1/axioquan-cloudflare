@@ -238,7 +238,7 @@ export default function InstructorQuizzesPage() {
             <h1 className="text-3xl font-bold tracking-tight">Assessments</h1>
             <p className="text-muted-foreground">Manage your quizzes, tests, and exams</p>
           </div>
-          <Button disabled>
+          <Button disabled className="cursor-pointer">
             <Plus className="mr-2 h-4 w-4" />
             New Assessment
           </Button>
@@ -268,7 +268,7 @@ export default function InstructorQuizzesPage() {
         </div>
         <div className="flex space-x-2">
           <Link href="/dashboard/instructor/quizzes/create">
-            <Button>
+            <Button className="cursor-pointer">
               <Plus className="mr-2 h-4 w-4" />
               New Assessment
             </Button>
@@ -410,7 +410,7 @@ export default function InstructorQuizzesPage() {
               <Button 
                 variant="outline" 
                 onClick={() => fetchAssessments(courseIdParam || 'all')} 
-                className="w-full sm:w-auto"
+                className="w-full cursor-pointer sm:w-auto"
               >
                 <Filter className="mr-2 h-4 w-4" />
                 Refresh
@@ -472,14 +472,14 @@ export default function InstructorQuizzesPage() {
                     <div className="flex flex-col space-y-2 shrink-0">
                       <div className="flex space-x-2">
                         <Link href={`/dashboard/instructor/quizzes/${assessment.id}`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="cursor-pointer">
                             <Eye className="h-4 w-4 mr-1" />
                             View
                           </Button>
                         </Link>
                         
                         <Link href={`/dashboard/instructor/quizzes/${assessment.id}/edit`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="cursor-pointer">
                             <Edit className="h-4 w-4 mr-1" />
                             Edit
                           </Button>
@@ -487,7 +487,7 @@ export default function InstructorQuizzesPage() {
                         
                         {/* NEW: Add Questions Button */}
                         <Link href={`/dashboard/instructor/quizzes/${assessment.id}/edit?tab=questions`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="cursor-pointer">
                             <Plus className="h-4 w-4 mr-1" />
                             Add Questions
                           </Button>
@@ -496,6 +496,7 @@ export default function InstructorQuizzesPage() {
                       
                       <div className="flex space-x-2">
                         <Button
+                          className="cursor-pointer"
                           variant="outline"
                           size="sm"
                           onClick={() => handleDuplicateAssessment(assessment.id)}
@@ -505,6 +506,7 @@ export default function InstructorQuizzesPage() {
                         </Button>
                         
                         <Button
+                          className="cursor-pointer"
                           variant="destructive"
                           size="sm"
                           onClick={() => handleDeleteAssessment(assessment.id, assessment.title)}
@@ -535,7 +537,7 @@ export default function InstructorQuizzesPage() {
                 : 'Create your first assessment to get started'}
             </p>
             <Link href="/dashboard/instructor/quizzes/create">
-              <Button>
+              <Button className="cursor-pointer">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Assessment
               </Button>

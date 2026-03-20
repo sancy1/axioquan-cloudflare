@@ -208,7 +208,7 @@ export function RoleRequestsList({ requests: initialRequests }: RoleRequestsList
         <div className="flex space-x-2">
           <button 
             onClick={() => window.location.reload()}
-            className="text-sm text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1 rounded"
+            className="text-sm cursor-pointer text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1 rounded"
           >
             Refresh
           </button>
@@ -218,7 +218,7 @@ export function RoleRequestsList({ requests: initialRequests }: RoleRequestsList
               size="sm"
               onClick={handleClearAll}
               disabled={clearingAll}
-              className="text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+              className="text-red-600 cursor-pointer border-red-300 hover:bg-red-50 hover:text-red-700"
             >
               {clearingAll ? 'Clearing...' : 'Clear All'}
             </Button>
@@ -237,7 +237,7 @@ export function RoleRequestsList({ requests: initialRequests }: RoleRequestsList
                 size="sm"
                 onClick={() => handleDeleteRequest(request.id)}
                 disabled={deletingId === request.id}
-                className="text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+                className="text-red-600 cursor-pointer border-red-300 hover:bg-red-50 hover:text-red-700"
               >
                 {deletingId === request.id ? 'Deleting...' : 'Delete'}
               </Button>
@@ -249,7 +249,7 @@ export function RoleRequestsList({ requests: initialRequests }: RoleRequestsList
               size="sm"
               onClick={() => handlePermanentlyRemove(request.id)}
               disabled={deletingId === request.id}
-              className="text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-gray-700"
+              className="text-gray-600 cursor-pointer border-gray-300 hover:bg-gray-50 hover:text-gray-700"
               title="Permanently remove from history"
             >
               {deletingId === request.id ? 'Removing...' : 'Remove'}
@@ -348,7 +348,7 @@ export function RoleRequestsList({ requests: initialRequests }: RoleRequestsList
               variant="outline"
               onClick={handleClearAll}
               disabled={clearingAll}
-              className="text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+              className="text-red-600 cursor-pointer border-red-300 hover:bg-red-50 hover:text-red-700"
             >
               {clearingAll ? 'Clearing All...' : 'Clear All History'}
             </Button>

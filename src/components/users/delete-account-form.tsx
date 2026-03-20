@@ -98,7 +98,7 @@ export function DeleteAccountForm() {
               type="button"
               variant="destructive"
               onClick={() => setShowConfirmation(true)}
-              className="w-full bg-red-600 hover:bg-red-700 text-white" // Added text-white
+              className="w-full cursor-pointer bg-red-600 hover:bg-red-700 text-white" // Added text-white
             >
               Delete My Account
             </Button>

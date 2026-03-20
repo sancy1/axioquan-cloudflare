@@ -35,10 +35,10 @@ export default function AboutPage() {
         <div className="space-y-24 lg:space-y-32 pb-24">
           <AboutHero />
           <MissionVision />
-          <StatsSection />
+          {/* <StatsSection /> */}
           <ValuesSection />
-          <TeamSection />
-          <FeaturesShowcase />
+          {/* <TeamSection /> */}
+          {/* <FeaturesShowcase /> */}
           <CTASection />
         </div>
       </main>

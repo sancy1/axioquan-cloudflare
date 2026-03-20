@@ -110,8 +110,7 @@
 
 
 
-
-// # courses route
+///src/app/api/courses/route.ts
 
 import { NextRequest } from 'next/server';
 import { getCoursesAction, createCourseAction } from '@/lib/courses/actions';

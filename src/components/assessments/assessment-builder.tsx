@@ -702,12 +702,13 @@ const handleSubmit = async (e: React.FormEvent) => {
 
           {/* Submit Buttons */}
           <div className="flex space-x-4 pt-4">
-            <Button type="submit" disabled={loading} className="flex-1">
+            <Button type="submit" disabled={loading} className="flex-1 cursor-pointer">
               {loading ? 'Saving...' : (isEditMode ? 'Update Assessment' : 'Create Assessment')}
             </Button>
             
             {(onCancel || !isEditMode) && (
               <Button
+              className="cursor-pointer"
                 type="button"
                 variant="outline"
                 onClick={onCancel || (() => router.back())}

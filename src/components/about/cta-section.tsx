@@ -6,6 +6,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Star, Users, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function CTASection() {
   return (
@@ -62,13 +63,15 @@ export default function CTASection() {
               transition={{ delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4 justify-center mb-10"
             >
-              <Button className="px-8 py-4 text-lg bg-white text-blue-700 hover:bg-gray-100 rounded-xl font-semibold shadow-lg">
+              <Link href="/login">
+              <Button className="px-8 py-4 text-lg bg-white cursor-pointer text-blue-700 hover:bg-gray-100 rounded-xl font-semibold shadow-lg">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button className="px-8 py-4 text-lg bg-transparent border-2 border-white text-white hover:bg-white/10 rounded-xl font-semibold">
+              </Link>
+              {/* <Button className="px-8 py-4 text-lg bg-transparent border-2 border-white text-white hover:bg-white/10 rounded-xl font-semibold">
                 Schedule a Demo
-              </Button>
+              </Button> */}
             </motion.div>
 
             {/* Trust Indicators */}
@@ -79,14 +82,14 @@ export default function CTASection() {
               transition={{ delay: 0.4 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-8 text-white/90"
             >
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                 <span className="font-medium">4.9/5 from 10,000+ reviews</span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
                 <span className="font-medium">50,000+ successful graduates</span>
-              </div>
+              </div> */}
             </motion.div>
           </div>
         </motion.div>

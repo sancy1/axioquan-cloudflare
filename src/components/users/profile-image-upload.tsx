@@ -191,7 +191,7 @@ export function ProfileImageUpload({
           onClick={() => fileInputRef.current?.click()}
           disabled={isLoading || isRemoving}
           variant="outline"
-          className="w-full"
+          className="w-full cursor-pointer"
         >
           {isLoading ? (
             <>
@@ -211,7 +211,7 @@ export function ProfileImageUpload({
             onClick={handleRemoveImage}
             disabled={isLoading || isRemoving}
             variant="outline"
-            className="w-full text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+            className="w-full cursor-pointer text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
           >
             {isRemoving ? 'Removing...' : 'Remove Photo'}
           </Button>

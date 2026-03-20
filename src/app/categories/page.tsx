@@ -188,7 +188,35 @@ export default function CategoriesPage() {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-black via-gray-900 to-gray-800 text-white py-16">
+      {/* <section className="bg-gradient-to-r from-black via-gray-900 to-gray-800 text-white py-16"> */}
+
+      <section
+  className="text-white py-16 relative overflow-hidden"
+  style={{ background: 'linear-gradient(180deg, #0a0a14 0%, #0f0a1e 50%, #0a0a14 100%)' }}
+>
+  {/* Checky grid background */}
+  <div className="absolute inset-0 pointer-events-none">
+    <div
+      className="absolute inset-0"
+      style={{
+        // backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        //                   linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
+
+        backgroundImage: `linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)`,
+                  
+        backgroundSize: '40px 40px',
+      }}
+    />
+    <div
+      className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px]"
+      style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}
+    />
+    <div
+      className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full blur-[100px]"
+      style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)' }}
+    />
+    </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
             <div className="flex-1">

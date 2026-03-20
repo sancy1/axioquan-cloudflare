@@ -490,7 +490,7 @@ export function CompleteProfileForm() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="min-w-32"
+                    className="min-w-32 cursor-pointer"
                   >
                     {isLoading ? (
                       <>

@@ -203,7 +203,7 @@ export function RoleUpgradeForm({ availableRoles }: RoleUpgradeFormProps) {
           <Button 
             type="submit" 
             disabled={isSubmitting}
-            className="w-full"
+            className="w-full cursor-pointer"
           >
             {isSubmitting ? 'Submitting Request...' : 'Submit Upgrade Request'}
           </Button>

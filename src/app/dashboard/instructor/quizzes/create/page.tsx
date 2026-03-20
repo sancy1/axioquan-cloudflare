@@ -50,8 +50,8 @@ export default function CreateAssessmentPage() {
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <Link href="/dashboard/instructor/quizzes">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-1" />
+            <Button variant="outline" size="sm" className="cursor-pointer">
+              <ArrowLeft className="h-4 w-4 mr-1 cursor-pointer" />
               Back to Assessments
             </Button>
           </Link>
@@ -74,8 +74,8 @@ export default function CreateAssessmentPage() {
       {/* Header */}
       <div className="flex items-center gap-2">
         <Link href="/dashboard/instructor/quizzes">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-1" />
+          <Button variant="outline" size="sm" className="cursor-pointer">
+            <ArrowLeft className="h-4 w-4 mr-1 cursor-pointer" />
             Back to Assessments
           </Button>
         </Link>
