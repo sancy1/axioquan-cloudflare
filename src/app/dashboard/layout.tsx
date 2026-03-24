@@ -322,10 +322,17 @@ export default async function DashboardLayout({
         <main className={`flex-1 min-h-screen overflow-auto transition-all duration-300 ${
           userData.primaryRole ? 'lg:ml-64' : 'lg:ml-0'
         }`}>
-          <div className="pt-5 lg:pt-8 px-4 lg:px-8 pb-8">
+
+          <div className="pt-5 lg:pt-8 px-4 lg:px-8 pb-8 has-[.inbox-fullbleed]:p-0 has-[.inbox-fullbleed]:pt-0">
             <RoleRefreshHandler />
             {children}
-          </div>
+        </div>
+
+          {/* <div className="pt-5 lg:pt-8 px-4 lg:px-8 pb-8">
+            <RoleRefreshHandler />
+            {children}
+          </div> */}
+
         </main>
       </div>
     </RealTimeProvider>
