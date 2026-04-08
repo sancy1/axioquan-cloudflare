@@ -25,7 +25,13 @@ import type {
 } from '@/types/payments'
 
 // Base URL for Java Payment Service - configurable per environment
-const BASE_URL = process.env.NEXT_PUBLIC_PAYMENT_SERVICE_URL || 'http://localhost:8080'
+// IMPORTANT: java-payment-api.ts is server-side only (server actions).
+// Prefer PAYMENT_SERVICE_URL (runtime env var, never inlined by Next.js build)
+// over NEXT_PUBLIC_PAYMENT_SERVICE_URL (baked into bundle at build time).
+const BASE_URL =
+  process.env.PAYMENT_SERVICE_URL ||
+  process.env.NEXT_PUBLIC_PAYMENT_SERVICE_URL ||
+  'http://localhost:8080'
 
 // ── Core fetch helper ─────────────────────────────────────────────────────────
 
@@ -77,12 +83,16 @@ async function paymentFetch<T>(
           errorData?.detail ||
           errorData?.msg ||
           `Payment service error: ${response.status}`
+        console.error(`❌ Payment API error body [${path}]:`, JSON.stringify(errorData))
       } catch (parseError) {
-        // If response isn't JSON, use status code
+        // If response isn't JSON, log raw body — helps diagnose proxy-level 403s
         const text = await response.text().catch(() => '')
+        errorMessage = text
+          ? `Payment service error: ${response.status} — ${text.substring(0, 300)}`
+          : `Payment service error: ${response.status}`
         console.error(`❌ Payment API error [${path}] - Non-JSON response:`, {
           status: response.status,
-          body: text.substring(0, 200), // First 200 chars
+          body: text.substring(0, 300),
         })
       }
       
