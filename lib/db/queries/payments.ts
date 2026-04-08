@@ -65,11 +65,13 @@ export async function recordPaymentInitiation(input: {
         NOW(),
         NOW()
       )
+      ON CONFLICT (reference) DO UPDATE
+        SET updated_at = NOW()
       RETURNING id
     `
 
     if (result.length > 0) {
-      console.log('✓ Payment recorded:', result[0].id)
+      console.log('✓ Payment recorded/updated:', result[0].id)
       return { success: true, paymentId: result[0].id }
     }
 
