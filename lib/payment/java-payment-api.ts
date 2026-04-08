@@ -33,6 +33,8 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_PAYMENT_SERVICE_URL ||
   'http://localhost:8080'
 
+console.log('[PAYMENT API] BASE_URL resolved to:', BASE_URL)
+
 // ── Core fetch helper ─────────────────────────────────────────────────────────
 
 interface ApiResponse<T> {
