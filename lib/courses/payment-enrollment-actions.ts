@@ -252,18 +252,25 @@ export async function initiatePaymentAction(
     // Normalise checkout URL — backend returns authorizationUrl, we also support checkoutUrl
     const checkoutUrl = paymentData.authorizationUrl || paymentData.checkoutUrl || ''
 
-    console.log('[PAYMENT ACTION] Payment service response:', {
-      reference: paymentData.reference,
-      status: paymentData.status,
-      hasCheckoutUrl: !!checkoutUrl,
-    })
+    console.log('[PAYMENT ACTION] Payment service response (full):', JSON.stringify(paymentData))
+
+    // Guard: reference is required for the DB insert. If the prod Java service
+    // wraps its response differently, paymentData.reference will be undefined.
+    if (!paymentData.reference) {
+      console.error('[PAYMENT ACTION] ❌ No reference in Java response:', JSON.stringify(paymentData))
+      return {
+        success: false,
+        message: 'Payment Service Error',
+        error: `Payment service returned no reference. Raw response: ${JSON.stringify(paymentData)}`,
+      }
+    }
 
     // ─── Step 6: Cache payment locally ───
     const cacheResult = await recordPaymentInitiation({
       reference: paymentData.reference,
       user_id: session.userId,
       course_id: courseId,
-      amount_cents: paymentData.amountCents ?? 0,
+      amount_cents: paymentData.amountCents ?? course.price_cents ?? 0,
       currency: paymentData.currency ?? 'NGN',
       status: paymentData.status === 'SUCCESS' ? 'SUCCESS' : 'PENDING',
       payment_method: 'paystack',
@@ -278,7 +285,7 @@ export async function initiatePaymentAction(
       return {
         success: false,
         message: 'Database Error',
-        error: 'Failed to save payment record',
+        error: `Failed to save payment record: ${cacheResult.error}`,
       }
     }
 
