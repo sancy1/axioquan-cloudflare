@@ -188,9 +188,9 @@ export async function initiatePaymentAction(
     let paymentResponse = await paymentApi.initializePayment(paymentRequest, authToken)
 
     // ─── 403 token refresh: stale/invalid token → regenerate once and retry ───
-    // Happens when session token was issued by a different server (e.g. switched
-    // from prod to localhost) or when the JWT has expired on the backend.
-    if (!paymentResponse.success && paymentResponse.error?.includes('403')) {
+    // Spring Security returns {"error":"Forbidden"} so we check httpStatus, not
+    // the error string (which would NOT contain "403" in that case).
+    if (!paymentResponse.success && paymentResponse.httpStatus === 403) {
       console.warn('[PAYMENT ACTION] 403 on payment init — token may be stale, regenerating...')
 
       try {

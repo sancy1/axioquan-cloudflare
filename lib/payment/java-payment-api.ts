@@ -42,6 +42,7 @@ interface ApiResponse<T> {
   data?: T
   message?: string
   error?: string
+  httpStatus?: number  // HTTP status code for programmatic checks (e.g. 403 retry)
 }
 
 async function paymentFetch<T>(
@@ -101,6 +102,7 @@ async function paymentFetch<T>(
       return {
         success: false,
         error: errorMessage,
+        httpStatus: response.status,
       }
     }
 
