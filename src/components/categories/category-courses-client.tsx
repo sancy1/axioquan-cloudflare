@@ -1315,7 +1315,7 @@ function CategoryCourseCard({ course, index }: { course: any; index: number }) {
               {course.price_cents === 0 ? (
                 <><Gift size={9} className="mr-1" />FREE</>
               ) : (
-                `$${(course.price_cents / 100).toFixed(0)}`
+                `₦${(course.price_cents).toLocaleString('en-NG')}`
               )}
             </span>
           </div>

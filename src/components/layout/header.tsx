@@ -1420,7 +1420,8 @@ export function Header() {
             <Link href="/" className="flex items-center gap-2.5 group">
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm transition-transform duration-200 group-hover:scale-110"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+                // style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+                style={{ background: '#000' }}
               >
                 A
               </div>

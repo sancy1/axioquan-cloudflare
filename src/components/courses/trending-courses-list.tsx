@@ -2214,7 +2214,7 @@ export function TrendingCoursesList({
 
   // Format price
   const formatPrice = (priceCents: number) => {
-    return priceCents === 0 ? 'Free' : `$${(priceCents / 100).toFixed(2)}`;
+    return priceCents === 0 ? 'Free' : `₦${(priceCents).toLocaleString('en-NG')}`;
   };
 
   // Safely format rating - EXACTLY LIKE COURSE PAGE

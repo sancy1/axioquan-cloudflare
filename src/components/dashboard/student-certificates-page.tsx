@@ -694,6 +694,7 @@
 //   Nothing is regenerated — the student always gets the identical certificate
 //   the instructor issued.
 
+import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { buildCertHTML, type CertificateData } from '@/components/dashboard/certificate-generator'
 
@@ -831,7 +832,7 @@ function ShareDropdown({ cert }: { cert: CertRecord }) {
           </div>
           {options.map((opt, i) => (
             <button key={i} onClick={opt.action}
-              className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+              className="cursor-pointer w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
               {opt.label}
             </button>
           ))}
@@ -1014,7 +1015,7 @@ export default function StudentCertificatesPage() {
                   {/* Download — renders the exact same cert the instructor issued */}
                   <button
                     onClick={() => openCertPrintWindow(cert)}
-                    className="flex-1 sm:flex-none px-4 py-2.5 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-700 transition-colors text-sm flex items-center justify-center gap-2"
+                    className="cursor-pointer flex-1 sm:flex-none px-4 py-2.5 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-700 transition-colors text-sm flex items-center justify-center gap-2"
                   >
                     📥 Download PDF
                   </button>
@@ -1023,15 +1024,25 @@ export default function StudentCertificatesPage() {
 
                   {/* Verify — coming soon */}
                   <div className="relative group flex-1 sm:flex-none">
-                    <button disabled className="w-full px-4 py-2.5 border border-gray-200 text-gray-400 rounded-lg font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed bg-gray-50">
+                    
+                    {/* <button disabled className="w-full px-4 py-2.5 border border-gray-200 text-gray-400 rounded-lg font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed bg-gray-50">
                       🔍 Verify
-                    </button>
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    </button> */}
+
+                    <Link
+                      href="/verify"
+                      className="w-full px-4 py-2.5 border border-gray-300 text-gray-600 rounded-lg font-medium text-sm flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 transition-all duration-200"
+                    >
+                      🔍 Verify
+                    </Link>
+                    
+                    {/* <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                       Coming soon
                       <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800" />
-                    </div>
+                    </div> */}
                   </div>
                 </div>
+                
               </div>
             ))
           )}
@@ -1095,7 +1106,7 @@ export default function StudentCertificatesPage() {
                   '_blank', 'noopener,noreferrer'
                 )
               }}
-              className="flex-shrink-0 px-6 py-3 bg-[#0077b5] text-white rounded-xl font-semibold hover:bg-[#005f8f] transition-colors text-sm flex items-center gap-2"
+              className="cursor-pointer flex-shrink-0 px-6 py-3 bg-[#0077b5] text-white rounded-xl font-semibold hover:bg-[#005f8f] transition-colors text-sm flex items-center gap-2"
             >
               💼 Share on LinkedIn
             </button>

@@ -1,25 +1,36 @@
-// /lib/courses/unenrollment-actions.ts - FIXED
+// /lib/courses/unenrollment-actions.ts - CASCADE DELETE FOR FREE COURSES
 'use server';
 
 import { 
   unenrollUserFromCourse, 
   canUnenrollFromCourse
 } from '@/lib/db/queries/unenrollment';
-import { getSession } from '@/lib/auth/session'; // Use getSession instead of requireAuth
+import { getSession } from '@/lib/auth/session';
 
 /**
  * Unenroll user from a course (server action)
+ * 
+ * For FREE COURSES:
+ *   - Uses HARD DELETE (cascade) - completely purges all user data
+ *   - Upon re-enrollment, student has clean state (as if never took course)
+ *   - Deletes: assessments, progress, certificates, reviews, likes, shares, etc.
+ * 
+ * For PAID COURSES (future):
+ *   - Uses SOFT DELETE - keeps enrollment record but marks as 'dropped'
+ *   - Preserves payment/refund history
+ *   - Prevents fraud/double-payment
  */
 export async function unenrollFromCourseAction(
   courseId: string,
-  method: 'soft_delete' | 'hard_delete' = 'soft_delete'
+  isFreeCourse: boolean = true
 ): Promise<{
   success: boolean;
   message: string;
   errors?: string[];
+  deletedRecords?: any;
 }> {
   try {
-    const session = await getSession(); // Changed from requireAuth()
+    const session = await getSession();
     
     if (!session || !session.userId) {
       return {
@@ -29,19 +40,13 @@ export async function unenrollFromCourseAction(
       };
     }
 
-    console.log(`Server action: Unenrolling user ${session.userId} from course ${courseId}`);
+    console.log(`[UNENROLL ACTION] User ${session.userId} unenrolling from course ${courseId}`);
     
-    // Remove eligibility check temporarily for debugging
-    // const eligibility = await canUnenrollFromCourse(session.userId, courseId);
-    // if (!eligibility.canUnenroll) {
-    //   return {
-    //     success: false,
-    //     message: 'Cannot unenroll from course',
-    //     errors: [eligibility.reason || 'Unable to unenroll']
-    //   };
-    // }
+    // For FREE courses: use hard delete (cascade all data)
+    // For PAID courses: use soft delete (keep enrollment record for refund history)
+    const method = isFreeCourse ? 'hard_delete' : 'soft_delete';
 
-    // Perform unenrollment directly
+    // Perform unenrollment
     const result = await unenrollUserFromCourse(session.userId, courseId, method);
     
     return result;

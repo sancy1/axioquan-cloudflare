@@ -57,6 +57,10 @@ jobs:
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           NEXT_PUBLIC_ADMIN_REGISTRATION_KEY: ${{ secrets.NEXT_PUBLIC_ADMIN_REGISTRATION_KEY }}
+          PAYMENT_SERVICE_URL: ${{ secrets.PAYMENT_SERVICE_URL }}
+          NEXT_PUBLIC_PAYMENT_SERVICE_URL: ${{ secrets.NEXT_PUBLIC_PAYMENT_SERVICE_URL }}
+          SERVICE_SECRET: ${{ secrets.SERVICE_SECRET }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

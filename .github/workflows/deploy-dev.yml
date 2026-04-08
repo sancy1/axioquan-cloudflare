@@ -68,6 +68,10 @@ jobs:
           NEXT_PUBLIC_MESSAGING_API_URL: ${{ secrets.NEXT_PUBLIC_MESSAGING_API_URL }}
           NEXT_PUBLIC_MESSAGING_WS_URL: ${{ secrets.NEXT_PUBLIC_MESSAGING_WS_URL }}
           MESSAGING_JWT_SECRET: ${{ secrets.MESSAGING_JWT_SECRET }}
+          PAYMENT_SERVICE_URL: ${{ secrets.PAYMENT_SERVICE_URL }}
+          NEXT_PUBLIC_PAYMENT_SERVICE_URL: ${{ secrets.NEXT_PUBLIC_PAYMENT_SERVICE_URL }}
+          SERVICE_SECRET: ${{ secrets.SERVICE_SECRET }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
       # ── Step 7: Deploy to Render ─────────────────────────────────────────────
       - name: Trigger Render Deploy

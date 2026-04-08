@@ -12,6 +12,8 @@ import ChatPanel from './chat-panel'
 import NewConversationModal from './new-conversation-modal'
 import { useMessaging } from '@/hooks/use-messaging'
 import type { ConversationInbox, WsMessagePayload } from '@/lib/messaging/types'
+import EmptyState from './empty-state'
+import GlobalSearch from './global-search'
 
 interface InboxLayoutProps {
   initialConversations:         ConversationInbox[]
@@ -230,8 +232,9 @@ export default function InboxLayout({
           }
         </button>
 
+
         {/* Search */}
-        <div className={`
+        {/* <div className={`
           flex items-center gap-2 flex-1 min-w-0
           px-3 py-2 rounded-lg border ${theme.border} ${theme.inputBg}
           focus-within:border-[#4f6ef7] transition-colors
@@ -251,7 +254,20 @@ export default function InboxLayout({
               placeholder:text-[#4a5568] outline-none w-full min-w-0
             `}
           />
-        </div>
+        </div> */}
+
+
+        {/* Global search — replaces placeholder input */}
+        <GlobalSearch
+          conversations={conversations}
+          theme={theme}
+          onSelect={(id) => {
+            handleSelectConversation(id)
+            setShowSidebar(true)
+            setShowMobileChat(true)
+          }}
+        />
+
 
         {/* Right side actions */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -313,11 +329,13 @@ export default function InboxLayout({
           ${!showMobileChat ? 'hidden md:flex' : 'flex'}
         `}>
           {activeConversation ? (
+            
             <ChatPanel
               conversation={activeConversation}
               currentUserId={currentUserId}
               currentUserName={currentUserName}
               currentUserImage={currentUserImage}
+              currentUserRole={currentUserRole}
               theme={theme}
               onBack={handleBackToList}
               onConversationDeleted={(id) => {
@@ -325,39 +343,57 @@ export default function InboxLayout({
                 setActiveId(null)
                 setShowMobileChat(false)
               }}
+              onConversationLeft={(id) => {
+                setConversations((prev) => prev.filter((c) => c.id !== id))
+                setActiveId(null)
+                setShowMobileChat(false)
+              }}
             />
+
           ) : (
-            <div className={`
-              flex-1 flex flex-col items-center justify-center gap-4
-              ${theme.textMuted}
-            `}>
-              <div className={`
-                w-16 h-16 rounded-full border-2 ${theme.border}
-                flex items-center justify-center
-              `}>
-                <span className="text-2xl">💬</span>
-              </div>
-              <div className="text-center">
-                <p className={`font-medium ${theme.textSec}`}>
-                  Select a conversation
-                </p>
-                <p className="text-xs mt-1">
-                  Choose from the list or start a new message
-                </p>
-              </div>
-              <button
-                onClick={() => setShowNewModal(true)}
-                className={`
-                  hidden md:flex items-center gap-2
-                  px-4 py-2 rounded-lg text-xs font-medium
-                  text-white ${theme.accent}
-                  hover:opacity-90 transition-opacity mt-2
-                `}
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Start a conversation
-              </button>
-            </div>
+
+
+            // <div className={`
+            //   flex-1 flex flex-col items-center justify-center gap-4
+            //   ${theme.textMuted}
+            // `}>
+            //   <div className={`
+            //     w-16 h-16 rounded-full border-2 ${theme.border}
+            //     flex items-center justify-center
+            //   `}>
+            //     <span className="text-2xl">💬</span>
+            //   </div>
+            //   <div className="text-center">
+            //     <p className={`font-medium ${theme.textSec}`}>
+            //       Select a conversation
+            //     </p>
+            //     <p className="text-xs mt-1">
+            //       Choose from the list or start a new message
+            //     </p>
+            //   </div>
+            //   <button
+            //     onClick={() => setShowNewModal(true)}
+            //     className={`
+            //       hidden md:flex items-center gap-2
+            //       px-4 py-2 rounded-lg text-xs font-medium
+            //       text-white ${theme.accent}
+            //       hover:opacity-90 transition-opacity mt-2
+            //     `}
+            //   >
+            //     <Plus className="w-3.5 h-3.5" />
+            //     Start a conversation
+            //   </button>
+            // </div>
+
+
+
+            <EmptyState
+              variant="no-conversations"
+              theme={theme}
+              onNewMessage={() => setShowNewModal(true)}
+            />
+
+
           )}
         </div>
       </div>

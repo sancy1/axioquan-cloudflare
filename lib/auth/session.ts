@@ -12,6 +12,7 @@ export interface SessionData {
   image?: string; // Added profile image property
   roles: string[];
   primaryRole: string;
+  paymentToken?: string; // JWT token from payment service for API authentication
   expires: number;
 }
 
@@ -112,6 +113,7 @@ export async function refreshSession(): Promise<boolean> {
   console.log('🔄 Refreshing session...');
   
   // Create new session with same data but updated expiration
+  // ✅ CRITICAL: Preserve paymentToken when refreshing session
   await createSession({
     userId: session.userId,
     email: session.email,
@@ -119,6 +121,7 @@ export async function refreshSession(): Promise<boolean> {
     image: session.image, // Include image in session refresh
     roles: session.roles,
     primaryRole: session.primaryRole,
+    paymentToken: session.paymentToken, // ✅ Preserve JWT token from payment service
   });
 
   return true;
@@ -186,6 +189,7 @@ export async function updateUserSession(userId: string): Promise<boolean> {
     console.log('🖼️ Database profile image:', user.image);
 
     // Update session with new roles and profile data
+    // ✅ CRITICAL: Preserve paymentToken when updating session
     const updatedSession: SessionData = {
       userId: sessionData.userId,
       email: sessionData.email,
@@ -193,6 +197,7 @@ export async function updateUserSession(userId: string): Promise<boolean> {
       image: user.image || sessionData.image, // Preserve existing image or update with new one
       roles: userRoles,
       primaryRole: primaryRole,
+      paymentToken: sessionData.paymentToken, // ✅ Preserve JWT token from payment service
       expires: Date.now() + SESSION_DURATION, // Refresh expiration
     };
 
@@ -270,9 +275,56 @@ export async function updateSessionImage(userId: string, imageUrl: string): Prom
 }
 
 /**
- * Remove profile image from session
+ * Update payment token in session
+ * Called when token needs to be added/refreshed after initial login
  */
-export async function removeSessionImage(userId: string): Promise<boolean> {
+export async function updateSessionPaymentToken(userId: string, paymentToken: string): Promise<boolean> {
+  'use server';
+  
+  try {
+    const cookieStore = await cookies();
+    const userCookie = cookieStore.get('axioquan-user')?.value;
+
+    if (!userCookie) {
+      console.log('❌ No session cookie found for user:', userId);
+      return false;
+    }
+
+    const sessionData = JSON.parse(userCookie) as SessionData;
+    
+    // Only update if it's the same user
+    if (sessionData.userId !== userId) {
+      console.log('❌ Session user ID mismatch:', sessionData.userId, 'vs', userId);
+      return false;
+    }
+
+    console.log('🔄 Updating session with payment token');
+
+    // Update session with payment token
+    const updatedSession: SessionData = {
+      ...sessionData,
+      paymentToken,
+      expires: Date.now() + SESSION_DURATION, // Refresh expiration
+    };
+
+    // Save updated session
+    cookieStore.set('axioquan-user', JSON.stringify(updatedSession), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60, // 1 hour in seconds
+      path: '/',
+    });
+
+    console.log('✅ Session updated with payment token');
+    return true;
+  } catch (error) {
+    console.error('❌ Error updating session with payment token:', error);
+    return false;
+  }
+}
+
+/**
   'use server';
   
   try {

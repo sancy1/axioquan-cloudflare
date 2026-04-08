@@ -1358,7 +1358,7 @@ export default function AboutHero() {
             </motion.h1>
 
             <motion.p variants={itemVariants} className="text-lg md:text-xl text-gray-400 mb-8 leading-relaxed max-w-xl mt-4">
-              At AxioQuan, we're building the future of education — a platform where knowledge meets innovation,
+              At AxioQuan, we're building the future of education a platform where knowledge meets innovation,
               and learning becomes an immersive journey of discovery and growth.
             </motion.p>
 

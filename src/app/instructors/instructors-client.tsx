@@ -890,7 +890,7 @@ function toArray(val: unknown): string[] {
   if (typeof val === 'string') return val.split(',').map(s => s.trim()).filter(Boolean);
   return [];
 }
-function formatPrice(cents: number) { return !cents || cents === 0 ? 'Free' : `$${(cents / 100).toFixed(2)}`; }
+function formatPrice(cents: number) { return !cents || cents === 0 ? 'Free' : `₦${(cents).toLocaleString('en-NG')}`; }
 function formatDuration(minutes?: number | null) {
   if (!minutes) return null;
   const h = Math.floor(minutes / 60), m = minutes % 60;

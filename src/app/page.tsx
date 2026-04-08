@@ -184,7 +184,7 @@ function PremiumCourseCard({ course, index }: { course: CourseAny; index: number
               {course.price_cents === 0 ? (
                 <><Gift size={9} className="mr-1" /> FREE</>
               ) : (
-                `$${(course.price_cents / 100).toFixed(0)}`
+                `₦${(course.price_cents).toLocaleString('en-NG')}`
               )}
             </span>
           </div>
@@ -1347,7 +1347,7 @@ function CertificateVerifyBanner() {
             </h2>
 
             <p className="text-white/50 text-lg leading-relaxed max-w-xl mb-8">
-              Anyone — employers, universities, or hiring managers — can instantly verify the authenticity of an AxioQuan certificate in seconds. No account required.
+              Anyone employers, universities, or hiring managers can instantly verify the authenticity of an AxioQuan certificate in seconds. No account required.
             </p>
 
             {/* Trust points */}
@@ -1701,7 +1701,7 @@ function BecomeInstructorTeaser() {
         }}
       />
       <img
-        src="images/Axio-Study.png"
+        src="images/Axio-Study.jpg"
         alt="Become an Instructor"
         className="w-full h-auto block"
         style={{

@@ -164,3 +164,35 @@
     @apply animate-in fade-in-0 duration-500;
   }
 }
+
+
+
+
+/* ── Messaging dark scrollbars ─────────────────────────────────────────────
+   Applies to all scrollable areas inside the messaging inbox
+   Matches the dark theme colors used in the chat UI
+────────────────────────────────────────────────────────────────────────── */
+
+.inbox-fullbleed ::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.inbox-fullbleed ::-webkit-scrollbar-track {
+  background: #0a0d14;
+}
+
+.inbox-fullbleed ::-webkit-scrollbar-thumb {
+  background: #1e2438;
+  border-radius: 999px;
+}
+
+.inbox-fullbleed ::-webkit-scrollbar-thumb:hover {
+  background: #2a3350;
+}
+
+/* Firefox */
+.inbox-fullbleed * {
+  scrollbar-width: thin;
+  scrollbar-color: #1e2438 #0a0d14;
+}

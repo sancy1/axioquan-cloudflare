@@ -1338,6 +1338,14 @@ export async function getAllCourses(filters?: {
   }
 }
 
+/**
+ * Get course details by ID (alias for getCourseById)
+ * Used by payment system to fetch course pricing info
+ * CRITICAL: Returns course.price_cents which determines if paid or free
+ */
+export async function getCourseDetails(id: string): Promise<Course | null> {
+  return getCourseById(id)
+}
 
 /**
  * Get course by ID

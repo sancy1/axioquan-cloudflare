@@ -43,6 +43,17 @@ yarn-error.log*
 .pnpm-debug.log*
 logs/
 *.log
+server-logs.txt
+
+# ── JVM Crash / Replay Logs (Java payment service) ───────────────────────────
+hs_err_pid*.log
+replay_pid*.log
+
+# ── Java / Maven Build Artifacts ─────────────────────────────────────────────
+payment-service/target/
+*.jar
+*.jar.original
+*.class
 
 # ── IDE ───────────────────────────────────────────────────────────────────────
 .idea/

@@ -13,6 +13,7 @@ import { redirect } from 'next/navigation';
 import { randomBytes } from 'crypto';
 import { sendEmail } from '@/lib/email/utils';
 import { createPasswordResetEmail } from '@/lib/email/templates/password-reset';
+import { generatePaymentToken, paymentApi } from '@/lib/payment/java-payment-api';
 
 
 /**
@@ -111,6 +112,11 @@ export async function signUpUser(formData: SignUpFormData): Promise<{
         '{}'::jsonb
       )
     `;
+
+    // 9️⃣ User signup complete
+    // Note: No user registration with payment service needed
+    // Payment service only requires existing users (must be created in their database)
+    // Token generation will work for any existing user via /api/v1/auth/generate-token
 
     // ✅ Return success
     return {
@@ -220,13 +226,47 @@ export async function loginWithSession(credentials: LoginFormData): Promise<{
     const result = await loginUser(credentials);
 
     if (result.success && result.user) {
-      // ✅ Create session with proper parameters
+      // ✅ Generate JWT token from payment service for API authentication
+      let paymentToken: string | undefined = undefined;
+
+      try {
+        console.log('[AUTH] Generating payment token for:', result.user.email);
+        const tokenResponse = await generatePaymentToken(result.user.id, result.user.email, result.user.name);
+
+        console.log('[AUTH] Token response:', {
+          success: tokenResponse.success,
+          hasData: !!tokenResponse.data,
+          dataKeys: tokenResponse.data ? Object.keys(tokenResponse.data) : [],
+          tokenExists: !!tokenResponse.data?.token,
+        });
+
+        if (tokenResponse.success && tokenResponse.data?.token) {
+          paymentToken = tokenResponse.data.token;
+          console.log('[AUTH] ✓ Payment token generated successfully - length:', paymentToken.length);
+        } else {
+          console.warn('[AUTH] ⚠️ Failed to generate payment token:', {
+            success: tokenResponse.success,
+            error: tokenResponse.error,
+            data: tokenResponse.data,
+          });
+          // Don't fail login if payment token generation fails - user can still use platform
+          // Payment requests will show clear error about missing token
+        }
+      } catch (tokenError) {
+        console.error('[AUTH] Error generating payment token:', tokenError);
+        // Continue with login even if token generation fails
+      }
+
+      // ✅ Create session with payment token
+      console.log('[AUTH] Creating session with payment token:', paymentToken ? 'YES' : 'NO');
+      
       await createSession({
         userId: result.user.id,
         email: result.user.email,
         name: result.user.name,
         roles: result.user.roles,
         primaryRole: result.user.primaryRole,
+        paymentToken, // Include JWT token from payment service
       });
 
       return result;
@@ -462,6 +502,8 @@ export async function deleteUserAccount(
 
 /**
  * Server action to handle account deletion with redirect
+ * ⚠️ IMPORTANT: Deletes ALL data including paid course enrollments
+ * When user re-registers, they must repay for paid courses
  */
 // Then update the deleteAccountAction function:
 export async function deleteAccountAction(password: string): Promise<{
@@ -481,16 +523,39 @@ export async function deleteAccountAction(password: string): Promise<{
       };
     }
 
+    console.log(`[DELETE ACCOUNT] Starting deletion for user: ${session.userId}`);
+
     const result = await deleteUserAccount(session.userId, password);
     
     if (result.success) {
-      // Destroy session and redirect
+      console.log(`[DELETE ACCOUNT] ✅ Account successfully deleted, destroying session...`);
+      // Destroy session and redirect to homepage
       await destroySession();
       redirect('/?message=account-deleted');
     }
     
+    console.error(`[DELETE ACCOUNT] ❌ Deletion failed:`, result.errors);
     return result;
   } catch (error: any) {
+    // Handle PAID_COURSE_ENROLLMENT_ERROR - ignore it during account deletion
+    if (error.message && error.message.includes('PAID_COURSE_ENROLLMENT_ERROR')) {
+      console.warn('[DELETE ACCOUNT] Paid course error - force deleting anyway:', error.message);
+      // Continue with deletion despite paid course errors
+      try {
+        const session = await getSession();
+        if (session) {
+          await destroySession();
+        }
+        redirect('/?message=account-deleted-with-warnings');
+      } catch (redirectError) {
+        return {
+          success: true,
+          message: 'Account deleted (redirecting...)',
+          errors: undefined,
+        };
+      }
+    }
+    
     console.error('❌ Delete account action error:', error);
     return {
       success: false,

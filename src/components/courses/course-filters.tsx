@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input'; // ADD MISSING IMPORT
 import { X, Filter, ChevronDown, ChevronUp } from 'lucide-react';
-import { SearchFilters } from '@/hooks/use-course-search';
+import { SearchFilters } from '@/types/search-filters';
 
 interface CourseFiltersProps {
   filters: SearchFilters;
@@ -34,8 +34,9 @@ const contentTypeOptions = [
 
 const priceRangeOptions = [
   { value: 'free', label: 'Free' },
-  { value: 'paid', label: 'Paid ($0 - $50)' },
-  { value: 'premium', label: 'Premium ($50+)' }
+  { value: '0-100', label: 'Paid ($0 - $100)' },
+  { value: '100-500', label: 'Premium ($100 - $500)' },
+  { value: '500+', label: 'Expert ($500+)' }
 ];
 
 const ratingOptions = [
@@ -49,7 +50,7 @@ const sortOptions = [
   { value: 'relevance', label: 'Relevance' },
   { value: 'newest', label: 'Newest' },
   { value: 'rating', label: 'Highest Rated' },
-  { value: 'students', label: 'Most Popular' },
+  { value: 'popular', label: 'Most Popular' },
   { value: 'price_low', label: 'Price: Low to High' },
   { value: 'price_high', label: 'Price: High to Low' }
 ];
