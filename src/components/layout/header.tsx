@@ -1579,6 +1579,12 @@ export function Header() {
               >
                 Dashboard
               </Link>
+              <Link href="/saved-courses" onClick={closeMenu}
+                className="block text-center px-4 py-3 rounded-xl text-sm font-semibold transition-colors duration-200"
+                style={{ border: '1.5px solid rgba(124,58,237,0.3)', color: '#7c3aed' }}
+              >
+                Saved Courses
+              </Link>
               <Link href="/dashboard/profile" onClick={closeMenu}
                 className="block text-center px-4 py-3 rounded-xl text-sm font-semibold transition-colors duration-200"
                 style={{ border: '1.5px solid rgba(124,58,237,0.3)', color: '#7c3aed' }}

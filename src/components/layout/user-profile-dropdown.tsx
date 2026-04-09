@@ -4,7 +4,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Bookmark } from "lucide-react";
 
 interface UserProfileDropdownProps {
   user: {
@@ -217,6 +217,15 @@ export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
             <span>Dashboard</span>
             </Link>
             
+            <Link
+              href="/saved-courses"
+              className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+              onClick={() => setIsDropdownOpen(false)}
+            >
+              <Bookmark className="w-4 h-4" />
+              <span>Saved Courses</span>
+            </Link>
+
             <Link
               href="/dashboard/profile"
               className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"

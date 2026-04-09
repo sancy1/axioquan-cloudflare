@@ -17,6 +17,7 @@ import { CourseReviewsSection } from '@/components/courses/course-reviews-sectio
 import { CourseCurriculum } from '@/components/courses/course-curriculum';
 import { LikeButton } from '@/components/social/like-button';
 import { ShareButton } from '@/components/social/share-button';
+import { SaveCourseButton } from '@/components/courses/save-course-button';
 import { CourseEnrollment } from '@/components/courses/course-enrollment';
 import { PromoVideoPlayer } from '@/components/courses/promo-video-player';
 
@@ -270,6 +271,13 @@ function CourseClientContent({
             initialShareCount={course.share_count || 0}
             size="lg"
             showCount={true}
+            variant="outline"
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+          />
+          <SaveCourseButton
+            courseId={course.id}
+            size="lg"
+            showLabel={true}
             variant="outline"
             className="bg-white/10 border-white/20 text-white hover:bg-white/20"
           />
