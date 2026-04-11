@@ -1284,6 +1284,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { UserProfileDropdown } from '@/components/layout/user-profile-dropdown';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 
 interface AuthStatus {
   isAuthenticated: boolean;
@@ -1474,7 +1475,10 @@ export function Header() {
             {/* Desktop right actions */}
             <div className="hidden md:flex items-center gap-3">
               {authStatus.isAuthenticated && authStatus.user ? (
-                <UserProfileDropdown user={authStatus.user} />
+                <>
+                  <NotificationBell placement="header" />
+                  <UserProfileDropdown user={authStatus.user} />
+                </>
               ) : (
                 <>
                   <Link

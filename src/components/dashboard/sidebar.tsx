@@ -755,6 +755,7 @@ import { usePathname } from 'next/navigation'
 import { UserProfileNav } from './user-profile-nav'
 import { useSidebar } from '@/contexts/sidebar-context'
 import { InboxBadge } from './inbox-badge'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 
 // ─── Replaced all generic icons with purpose-specific ones ───────────────────
 import {
@@ -1084,14 +1085,24 @@ export default function Sidebar({ user }: SidebarProps) {
       </div>
 
       {/* ── Footer ─────────────────────────────────────────────────── */}
+      {isCollapsed && user && (
+        <div className="shrink-0 px-2 py-4 border-t border-gray-100 flex justify-center">
+          <NotificationBell placement="sidebar" />
+        </div>
+      )}
       {!isCollapsed && user && (
         <div className="shrink-0 px-3 py-4 border-t border-gray-100">
-          <UserProfileNav
-            userName={user.name  || 'User'}
-            userEmail={user.email || 'user@example.com'}
-            userRole={user.primaryRole || 'user'}
-            userImage={user.image}
-          />
+          <div className="flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <UserProfileNav
+                userName={user.name  || 'User'}
+                userEmail={user.email || 'user@example.com'}
+                userRole={user.primaryRole || 'user'}
+                userImage={user.image}
+              />
+            </div>
+            <NotificationBell placement="sidebar" />
+          </div>
         </div>
       )}
     </div>
