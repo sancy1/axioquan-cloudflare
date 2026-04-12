@@ -5,20 +5,40 @@ import Link from 'next/link'
 import {
   Bell, Check, CheckCheck, Trash2, RefreshCw,
   CreditCard, BookOpen, Award, AlertCircle, Info, Star,
-  Loader2, Filter,
+  Loader2, MessageSquare, UserPlus, Radio, Trophy, BadgeCheck,
+  ClipboardList, PlayCircle, Settings,
 } from 'lucide-react'
 import type { Notification } from '@/types/notifications'
 
 // ── Helpers (same as panel) ───────────────────────────────────────────────────
 
-function getIcon(type?: string) {
-  const t = (type ?? '').toUpperCase()
+function getIcon(type?: string, iconType?: string) {
+  const it = (iconType ?? '').toLowerCase()
+  const t  = ((type ?? '') + ' ' + (iconType ?? '')).toUpperCase()
   if (t.includes('PAYMENT') || t.includes('REFUND'))
     return <CreditCard className="w-5 h-5" />
-  if (t.includes('ENROLL') || t.includes('COURSE'))
+  if (t.includes('QUIZ') || it === 'quiz')
+    return <ClipboardList className="w-5 h-5" />
+  if (t.includes('ASSESSMENT') || it === 'assessment')
+    return <ClipboardList className="w-5 h-5" />
+  if (t.includes('CERTIFICATE') || it === 'certificate')
+    return <BadgeCheck className="w-5 h-5" />
+  if (t.includes('ACHIEVEMENT') || it === 'achievement')
+    return <Trophy className="w-5 h-5" />
+  if (t.includes('ENROLL') || t.includes('COURSE') || it === 'course')
     return <BookOpen className="w-5 h-5" />
-  if (t.includes('CERTIFICATE') || t.includes('COMPLETE') || t.includes('AWARD'))
+  if (t.includes('LESSON') || t.includes('MODULE') || it === 'lesson' || it === 'module')
+    return <PlayCircle className="w-5 h-5" />
+  if (t.includes('DISCUSSION') || t.includes('REVIEW') || t.includes('REPLY') || it === 'discussion' || it === 'review')
+    return <MessageSquare className="w-5 h-5" />
+  if (t.includes('LIVE') || it === 'live')
+    return <Radio className="w-5 h-5" />
+  if (t.includes('FOLLOW') || t.includes('GROUP') || it === 'social')
+    return <UserPlus className="w-5 h-5" />
+  if (t.includes('COMPLETE') || t.includes('AWARD'))
     return <Award className="w-5 h-5" />
+  if (t.includes('SYSTEM') || it === 'system' || t.includes('ROLE'))
+    return <Settings className="w-5 h-5" />
   if (t.includes('ERROR') || t.includes('FAIL') || t.includes('CANCEL'))
     return <AlertCircle className="w-5 h-5" />
   if (t.includes('STAR') || t.includes('RATING'))
@@ -26,13 +46,27 @@ function getIcon(type?: string) {
   return <Info className="w-5 h-5" />
 }
 
-function getIconColorClass(type?: string) {
-  const t = (type ?? '').toUpperCase()
-  if (t.includes('PAYMENT_SUCCESS') || t.includes('REFUND')) return 'bg-green-100 text-green-600'
-  if (t.includes('PAYMENT_FAILED') || t.includes('CANCEL'))  return 'bg-red-100 text-red-600'
-  if (t.includes('ENROLL') || t.includes('COURSE'))           return 'bg-violet-100 text-violet-600'
-  if (t.includes('CERTIFICATE') || t.includes('COMPLETE'))    return 'bg-amber-100 text-amber-600'
-  if (t.includes('ERROR') || t.includes('FAIL'))              return 'bg-red-100 text-red-600'
+function getIconColorClass(type?: string, iconType?: string) {
+  const it = (iconType ?? '').toLowerCase()
+  const t  = ((type ?? '') + ' ' + (iconType ?? '')).toUpperCase()
+  if (t.includes('PAYMENT_SUCCESS'))                       return 'bg-green-100 text-green-600'
+  if (t.includes('PAYMENT_FAILED') || t.includes('CANCEL')) return 'bg-red-100 text-red-600'
+  if (t.includes('REFUND'))                                return 'bg-orange-100 text-orange-600'
+  if (t.includes('PAYMENT'))                               return 'bg-green-100 text-green-600'
+  if (t.includes('QUIZ') || it === 'quiz')                 return 'bg-blue-100 text-blue-600'
+  if (t.includes('ASSESSMENT') || it === 'assessment')     return 'bg-indigo-100 text-indigo-600'
+  if (t.includes('CERTIFICATE') || it === 'certificate')   return 'bg-amber-100 text-amber-600'
+  if (t.includes('ACHIEVEMENT') || it === 'achievement')   return 'bg-yellow-100 text-yellow-600'
+  if (t.includes('ENROLL') || t.includes('COURSE') || it === 'course') return 'bg-violet-100 text-violet-600'
+  if (t.includes('LESSON') || it === 'lesson')             return 'bg-violet-100 text-violet-600'
+  if (t.includes('MODULE') || it === 'module')             return 'bg-violet-100 text-violet-600'
+  if (t.includes('COMPLETE'))                              return 'bg-green-100 text-green-600'
+  if (t.includes('DISCUSSION') || t.includes('REPLY') || it === 'discussion') return 'bg-sky-100 text-sky-600'
+  if (t.includes('REVIEW') || it === 'review')             return 'bg-sky-100 text-sky-600'
+  if (t.includes('LIVE') || it === 'live')                 return 'bg-red-100 text-red-600'
+  if (t.includes('FOLLOW') || t.includes('GROUP') || it === 'social') return 'bg-pink-100 text-pink-600'
+  if (t.includes('SYSTEM') || it === 'system' || t.includes('ROLE')) return 'bg-gray-100 text-gray-600'
+  if (t.includes('ERROR') || t.includes('FAIL'))           return 'bg-red-100 text-red-600'
   return 'bg-blue-100 text-blue-600'
 }
 
@@ -57,28 +91,57 @@ export default function NotificationsPage() {
   const [filter, setFilter]               = useState<FilterTab>('all')
   const [deletingIds, setDeletingIds]     = useState<Set<string>>(new Set())
 
-  const DELETED_KEY = 'axioquan-deleted-notifications'
-
-  function getDeletedIds(): Set<string> {
-    try {
-      const raw = localStorage.getItem(DELETED_KEY)
-      return new Set(raw ? (JSON.parse(raw) as string[]) : [])
-    } catch { return new Set() }
-  }
-
-  function saveDeletedIds(ids: Set<string>) {
-    try { localStorage.setItem(DELETED_KEY, JSON.stringify([...ids])) } catch {}
-  }
-
   const fetchAll = useCallback(async () => {
     setIsLoading(true)
     try {
-      const res = await fetch('/api/notifications/list?page=0&size=100')
-      if (res.ok) {
-        const data = await res.json()
-        const deleted = getDeletedIds()
-        setNotifications((data.content ?? []).filter((n: Notification) => !deleted.has(n.id)))
+      // allSettled — a C# failure can never suppress Java notifications
+      const [javaResult, csResult] = await Promise.allSettled([
+        fetch('/api/notifications/list?page=0&size=100'),
+        fetch('/api/csharp-notifications/list?page=0&size=100'),
+      ])
+
+      const DELETED_KEY = 'axioquan-deleted-notifications'
+      let deleted: Set<string> = new Set()
+      try {
+        const raw = localStorage.getItem(DELETED_KEY)
+        deleted = new Set(raw ? (JSON.parse(raw) as string[]) : [])
+      } catch { /* ignore */ }
+
+      let javaNotifs: Notification[] = []
+      if (javaResult.status === 'fulfilled' && javaResult.value.ok) {
+        try {
+          const data = await javaResult.value.json()
+          javaNotifs = (data.content ?? [])
+            .filter((n: Notification) => !deleted.has(n.id))
+            .map((n: Notification) => ({ ...n, source: 'java' as const }))
+        } catch (err) {
+          console.error('[Notifications] Failed to parse Java list response:', err)
+        }
+      } else if (javaResult.status === 'rejected') {
+        console.error('[Notifications] Java list fetch rejected:', javaResult.reason)
+      } else if (javaResult.status === 'fulfilled') {
+        console.warn('[Notifications] Java list route returned', javaResult.value.status)
       }
+
+      let csNotifs: Notification[] = []
+      if (csResult.status === 'fulfilled' && csResult.value.ok) {
+        try {
+          const data = await csResult.value.json()
+          csNotifs = (data.content ?? []).map(
+            (n: Notification) => ({ ...n, source: 'csharp' as const })
+          )
+        } catch (err) {
+          console.error('[Notifications] Failed to parse C# list response:', err)
+        }
+      }
+
+      setNotifications(
+        [...javaNotifs, ...csNotifs].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      )
+    } catch (err) {
+      console.error('[Notifications] fetchAll unexpected error:', err)
     } finally {
       setIsLoading(false)
     }
@@ -87,21 +150,38 @@ export default function NotificationsPage() {
   useEffect(() => { fetchAll() }, [fetchAll])
 
   const markAsRead = async (id: string) => {
-    await fetch(`/api/notifications/${id}/read`, { method: 'PUT' })
+    const notif = notifications.find(n => n.id === id)
+    const endpoint = notif?.source === 'csharp'
+      ? `/api/csharp-notifications/${id}/read`
+      : `/api/notifications/${id}/read`
+    await fetch(endpoint, { method: 'PUT' }).catch(() => {})
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n))
   }
 
   const markAllAsRead = async () => {
-    await fetch('/api/notifications/read-all', { method: 'PUT' })
+    await Promise.all([
+      fetch('/api/notifications/read-all', { method: 'PUT' }),
+      fetch('/api/csharp-notifications/read-all', { method: 'PUT' }),
+    ]).catch(() => {})
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
   }
 
   const deleteNotification = (id: string) => {
     setDeletingIds(prev => new Set(prev).add(id))
+    const notif = notifications.find(n => n.id === id)
+    if (notif?.source === 'csharp') {
+      fetch(`/api/csharp-notifications/${id}`, { method: 'DELETE' }).catch(() => {})
+    } else {
+      // Soft-delete Java notifications in localStorage
+      const DELETED_KEY = 'axioquan-deleted-notifications'
+      try {
+        const raw = localStorage.getItem(DELETED_KEY)
+        const ids: Set<string> = new Set(raw ? (JSON.parse(raw) as string[]) : [])
+        ids.add(id)
+        localStorage.setItem(DELETED_KEY, JSON.stringify([...ids]))
+      } catch { /* ignore */ }
+    }
     setTimeout(() => {
-      const deleted = getDeletedIds()
-      deleted.add(id)
-      saveDeletedIds(deleted)
       setNotifications(prev => prev.filter(n => n.id !== id))
       setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next })
     }, 300)
@@ -187,14 +267,14 @@ export default function NotificationsPage() {
             <p className="text-sm text-gray-400 mt-1 text-center">
               {filter === 'unread'
                 ? 'You have no unread notifications.'
-                : 'Payment and enrollment updates will appear here.'}
+                : 'Course, quiz, payment and other updates will appear here.'}
             </p>
           </div>
         ) : (
           <ul className="divide-y divide-gray-50">
             {displayed.map(n => {
               const isDeleting = deletingIds.has(n.id)
-              const colorClass = getIconColorClass(n.notificationType)
+              const colorClass = getIconColorClass(n.notificationType, n.iconType)
 
               const cardContent = (
                 <div
@@ -212,7 +292,7 @@ export default function NotificationsPage() {
 
                   {/* Icon */}
                   <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}>
-                    {getIcon(n.notificationType)}
+                    {getIcon(n.notificationType, n.iconType)}
                   </div>
 
                   {/* Text */}

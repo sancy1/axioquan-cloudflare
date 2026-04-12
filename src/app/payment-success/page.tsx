@@ -18,7 +18,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle, XCircle, Loader2, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { verifyPaymentAction } from '@/lib/courses/payment-enrollment-actions'
+import { verifyPaymentAction, checkPaymentAlreadyProcessed } from '@/lib/courses/payment-enrollment-actions'
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams()
@@ -38,24 +38,33 @@ function PaymentSuccessContent() {
       return
     }
 
-    verifyPaymentAction(reference).then((result) => {
-      if (result.success && result.data?.status === 'SUCCESS') {
-        setStatus('success')
-        setMessage(result.message || 'Your payment was confirmed successfully.')
-        // verifyPaymentAction returns courseId — use it to build the redirect
-        const cId = result.data.courseId
-        if (cId) {
-          setCourseSlug(cId)
-          setTimeout(() => router.push(`/courses/learn/${cId}`), 3000)
-        }
-      } else {
-        setStatus('failed')
-        setMessage(
-          result.error ||
-          result.message ||
-          'Payment could not be verified. Please contact support.'
-        )
+    // ── Guard: if this reference was already verified, redirect immediately.
+    // Prevents replaying the success page from browser history or a copied URL.
+    checkPaymentAlreadyProcessed(reference).then((check) => {
+      if (check.alreadyProcessed && check.courseId) {
+        router.replace(`/courses/learn/${check.courseId}`)
+        return
       }
+
+      verifyPaymentAction(reference).then((result) => {
+        if (result.success && result.data?.status === 'SUCCESS') {
+          setStatus('success')
+          setMessage(result.message || 'Your payment was confirmed successfully.')
+          const cId = result.data.courseId
+          if (cId) {
+            setCourseSlug(cId)
+            // Use replace so the user cannot press Back to return to this page
+            setTimeout(() => router.replace(`/courses/learn/${cId}`), 3000)
+          }
+        } else {
+          setStatus('failed')
+          setMessage(
+            result.error ||
+            result.message ||
+            'Payment could not be verified. Please contact support.'
+          )
+        }
+      })
     })
   }, [searchParams, router])
 
@@ -88,7 +97,7 @@ function PaymentSuccessContent() {
             </p>
             {courseSlug && (
               <Button
-                onClick={() => router.push(`/courses/learn/${courseSlug}`)}
+                onClick={() => router.replace(`/courses/learn/${courseSlug}`)}
                 className="w-full bg-green-600 hover:bg-green-700 text-white"
               >
                 <BookOpen className="w-4 h-4 mr-2" />

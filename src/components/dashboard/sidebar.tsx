@@ -867,6 +867,7 @@ export default function Sidebar({ user }: SidebarProps) {
       id: 'admin',
       submenu: [
         { label: 'Dashboard',    href: '/dashboard/admin',               icon: <LayoutDashboard className="h-4 w-4" />, id: 'admin-dashboard' },
+        { label: 'User Management', href: '/dashboard/admin/users',      icon: <Users           className="h-4 w-4" />, id: 'admin-users'     },
         { label: 'Categories',   href: '/dashboard/admin/categories',    icon: <FolderTree      className="h-4 w-4" />, id: 'categories'      },
         { label: 'Tags',         href: '/dashboard/admin/tags',          icon: <Tag             className="h-4 w-4" />, id: 'tags'            },
         { label: 'Cleanup',      href: '/dashboard/admin/cleanup',       icon: <Trash2          className="h-4 w-4" />, id: 'cleanup'         },

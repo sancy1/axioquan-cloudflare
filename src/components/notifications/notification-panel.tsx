@@ -10,6 +10,8 @@ import {
   Bell, X, Check, CheckCheck, Trash2,
   CreditCard, BookOpen, Award, AlertCircle,
   Info, Star, Loader2, RefreshCw,
+  MessageSquare, UserPlus, Radio, Trophy, BadgeCheck,
+  ClipboardList, PlayCircle, Settings,
 } from 'lucide-react'
 import type { Notification } from '@/types/notifications'
 
@@ -46,13 +48,30 @@ export interface NotificationPanelProps {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getIcon(notificationType?: string, iconType?: string) {
-  const t = ((notificationType ?? '') + (iconType ?? '')).toUpperCase()
-  if (t.includes('PAYMENT') || t.includes('TRANSACTION'))
+  const it = (iconType ?? '').toLowerCase()
+  const t  = ((notificationType ?? '') + ' ' + (iconType ?? '')).toUpperCase()
+  if (t.includes('PAYMENT') || t.includes('TRANSACTION') || t.includes('REFUND'))
     return <CreditCard className="w-4 h-4" />
-  if (t.includes('ENROLL') || t.includes('COURSE'))
+  if (t.includes('QUIZ') || it === 'quiz' || t.includes('ASSESSMENT') || it === 'assessment')
+    return <ClipboardList className="w-4 h-4" />
+  if (t.includes('CERTIFICATE') || it === 'certificate')
+    return <BadgeCheck className="w-4 h-4" />
+  if (t.includes('ACHIEVEMENT') || it === 'achievement')
+    return <Trophy className="w-4 h-4" />
+  if (t.includes('ENROLL') || t.includes('COURSE') || it === 'course' || it === 'lesson' || it === 'module')
     return <BookOpen className="w-4 h-4" />
-  if (t.includes('CERTIFICATE') || t.includes('COMPLETE') || t.includes('AWARD'))
+  if (t.includes('LESSON') || t.includes('MODULE') || it === 'lesson' || it === 'module')
+    return <PlayCircle className="w-4 h-4" />
+  if (t.includes('DISCUSSION') || t.includes('REVIEW') || t.includes('REPLY') || it === 'discussion' || it === 'review')
+    return <MessageSquare className="w-4 h-4" />
+  if (t.includes('LIVE') || it === 'live')
+    return <Radio className="w-4 h-4" />
+  if (t.includes('FOLLOW') || t.includes('GROUP') || it === 'social')
+    return <UserPlus className="w-4 h-4" />
+  if (t.includes('COMPLETE') || t.includes('AWARD'))
     return <Award className="w-4 h-4" />
+  if (t.includes('SYSTEM') || it === 'system' || t.includes('ROLE'))
+    return <Settings className="w-4 h-4" />
   if (t.includes('ERROR') || t.includes('FAIL') || t.includes('CANCEL'))
     return <AlertCircle className="w-4 h-4" />
   if (t.includes('STAR') || t.includes('RATING'))
@@ -60,13 +79,25 @@ function getIcon(notificationType?: string, iconType?: string) {
   return <Info className="w-4 h-4" />
 }
 
-function getIconColorClass(notificationType?: string) {
-  const t = (notificationType ?? '').toUpperCase()
+function getIconColorClass(notificationType?: string, iconType?: string) {
+  const it = (iconType ?? '').toLowerCase()
+  const t  = ((notificationType ?? '') + ' ' + (iconType ?? '')).toUpperCase()
   if (t.includes('PAYMENT') || t.includes('TRANSACTION')) return 'bg-green-100 text-green-600'
-  if (t.includes('ENROLL') || t.includes('COURSE'))        return 'bg-violet-100 text-violet-600'
-  if (t.includes('CERTIFICATE') || t.includes('COMPLETE')) return 'bg-amber-100 text-amber-600'
-  if (t.includes('ERROR') || t.includes('FAIL') || t.includes('CANCEL'))
-    return 'bg-red-100 text-red-600'
+  if (t.includes('REFUND'))                               return 'bg-orange-100 text-orange-600'
+  if (t.includes('QUIZ') || it === 'quiz')                return 'bg-blue-100 text-blue-600'
+  if (t.includes('ASSESSMENT') || it === 'assessment')    return 'bg-indigo-100 text-indigo-600'
+  if (t.includes('CERTIFICATE') || it === 'certificate')  return 'bg-amber-100 text-amber-600'
+  if (t.includes('ACHIEVEMENT') || it === 'achievement')  return 'bg-yellow-100 text-yellow-600'
+  if (t.includes('ENROLL') || t.includes('COURSE') || it === 'course') return 'bg-violet-100 text-violet-600'
+  if (t.includes('LESSON') || it === 'lesson')            return 'bg-violet-100 text-violet-600'
+  if (t.includes('MODULE') || it === 'module')            return 'bg-violet-100 text-violet-600'
+  if (t.includes('COMPLETE'))                             return 'bg-green-100 text-green-600'
+  if (t.includes('DISCUSSION') || t.includes('REPLY') || it === 'discussion') return 'bg-sky-100 text-sky-600'
+  if (t.includes('REVIEW') || it === 'review')            return 'bg-sky-100 text-sky-600'
+  if (t.includes('LIVE') || it === 'live')                return 'bg-red-100 text-red-600'
+  if (t.includes('FOLLOW') || t.includes('GROUP') || it === 'social') return 'bg-pink-100 text-pink-600'
+  if (t.includes('SYSTEM') || it === 'system' || t.includes('ROLE')) return 'bg-gray-100 text-gray-600'
+  if (t.includes('ERROR') || t.includes('FAIL') || t.includes('CANCEL')) return 'bg-red-100 text-red-600'
   return 'bg-blue-100 text-blue-600'
 }
 
@@ -90,7 +121,7 @@ function NotificationCard({
   markAsRead: (id: string) => void
   deleteNotification: (id: string) => void
 }) {
-  const colorClass = getIconColorClass(notification.notificationType)
+  const colorClass = getIconColorClass(notification.notificationType, notification.iconType)
   const icon = getIcon(notification.notificationType, notification.iconType)
 
   const cardContent = (
@@ -261,7 +292,7 @@ export function NotificationPanel({
             <p className="text-xs text-gray-400 mt-1 text-center">
               {tab === 'unread'
                 ? 'You have no unread notifications.'
-                : 'Payment and enrollment updates will appear here.'}
+                : 'Course, quiz, payment and other updates will appear here.'}
             </p>
           </div>
         ) : (

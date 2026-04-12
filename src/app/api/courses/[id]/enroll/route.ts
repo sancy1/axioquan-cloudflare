@@ -94,7 +94,8 @@
 // /app/api/courses/[id]/enroll/route.ts - ADD DEBUG LOGGING
 import { NextRequest } from 'next/server';
 import { getSession } from '@/lib/auth/session';
-import { enrollUserInCourse } from '@/lib/db/queries/courses';
+import { enrollUserInCourse, getCourseDetails } from '@/lib/db/queries/courses';
+import { sendNotification } from '@/lib/notifications/send-notification';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -133,6 +134,20 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     console.log(`[ENROLL] Result:`, result);
 
     if (result.success) {
+      // Fire enrollment notification (fire-and-forget)
+      getCourseDetails(id).then(course => {
+        const title = (course as any)?.title ?? 'the course'
+        sendNotification({
+          userId: session!.userId,
+          notificationType: 'COURSE_ENROLLED',
+          title: '🎓 Enrolled Successfully!',
+          message: `You are now enrolled in "${title}". Start learning today!`,
+          actionUrl: `/courses/learn/${id}`,
+          iconType: 'course',
+          data: { courseId: id },
+        }).catch(() => {})
+      }).catch(() => {})
+
       return Response.json({
         success: true,
         message: 'Successfully enrolled in course',

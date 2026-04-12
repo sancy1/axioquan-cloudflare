@@ -285,6 +285,31 @@ export default async function MyCourses() {
 
   try {
     if (session?.userId) {
+      // ── Cleanup: remove enrollments whose SUCCESS payment was deleted ────
+      try {
+        await sql`
+          DELETE FROM enrollments
+          WHERE user_id = ${session.userId}
+            AND status  = 'active'
+            AND course_id IN (
+              SELECT e2.course_id
+              FROM   enrollments e2
+              JOIN   courses c
+                ON   c.id = e2.course_id
+              LEFT JOIN payments p
+                ON   p.user_id   = e2.user_id
+               AND   p.course_id = e2.course_id
+               AND   p.status    = 'SUCCESS'
+              WHERE  e2.user_id              = ${session.userId}
+                AND  e2.status              = 'active'
+                AND  COALESCE(c.price_cents, 0) > 0
+                AND  p.id IS NULL
+            )
+        `
+      } catch {
+        // cleanup failed — stale paid enrollments may appear until next load
+      }
+
       // ── Enrolled courses ──────────────────────────────────────────────────
       const enrollments = await sql`
         SELECT

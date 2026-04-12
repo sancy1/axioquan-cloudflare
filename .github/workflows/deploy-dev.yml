@@ -71,6 +71,7 @@ jobs:
           PAYMENT_SERVICE_URL: ${{ secrets.PAYMENT_SERVICE_URL }}
           NEXT_PUBLIC_PAYMENT_SERVICE_URL: ${{ secrets.NEXT_PUBLIC_PAYMENT_SERVICE_URL }}
           SERVICE_SECRET: ${{ secrets.SERVICE_SECRET }}
+          NOTIFICATION_SERVICE_URL: ${{ secrets.NOTIFICATION_SERVICE_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
       # ── Step 7: Deploy to Render ─────────────────────────────────────────────

@@ -12,6 +12,8 @@ export interface Notification {
   data?: Record<string, unknown>
   createdAt: string
   readAt?: string
+  /** Which backend owns this notification; used to route read/delete actions correctly. */
+  source?: 'java' | 'csharp'
 }
 
 export interface UnreadCountResponse {

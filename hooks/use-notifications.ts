@@ -1,6 +1,7 @@
 // hooks/use-notifications.ts
 // Manages in-app notification state: unread count polling, list fetching,
 // mark-as-read, mark-all-read, and client-side soft-delete via localStorage.
+// Merges notifications from both the Java payment service and the C# notification service.
 // Multiple hook instances stay in sync via a window broadcast event.
 
 'use client'
@@ -43,39 +44,86 @@ export function useNotifications() {
   const [isLoading, setIsLoading] = useState(false)
   const [isPanelOpen, setIsPanelOpen] = useState(false)
   const deletedIds = useRef<Set<string>>(new Set())
+  // Mirror of the notifications array — lets callbacks read current state
+  // without stale closures or adding notifications to their dep arrays.
+  const notificationsRef = useRef<Notification[]>([])
 
-  // initialise deleted IDs from localStorage after mount
+  // Keep ref in sync with state
+  useEffect(() => {
+    notificationsRef.current = notifications
+  }, [notifications])
+
+  // Initialise deleted IDs from localStorage after mount
   useEffect(() => {
     deletedIds.current = getDeletedIds()
   }, [])
 
+  // Poll Java count only (cheap, non-breaking).
+  // When the panel opens, fetchList syncs the exact merged count.
   const fetchCount = useCallback(async () => {
     try {
       const res = await fetch('/api/notifications/count')
       if (res.ok) {
         const data = await res.json()
         setUnreadCount(data.unreadCount ?? 0)
+      } else {
+        console.warn('[Notifications] Count route returned', res.status)
       }
-    } catch {
-      // silently fail — count stays at previous value
+    } catch (err) {
+      console.error('[Notifications] fetchCount failed:', err)
     }
   }, [])
 
   const fetchList = useCallback(async () => {
     setIsLoading(true)
     try {
-      const res = await fetch('/api/notifications/list?page=0&size=30')
-      if (res.ok) {
-        const data: NotificationPage = await res.json()
-        const deleted = getDeletedIds()
-        deletedIds.current = deleted
-        const filtered = (data.content ?? []).filter(n => !deleted.has(n.id))
-        setNotifications(filtered)
-        // keep badge in sync with the authoritative list data
-        setUnreadCount(filtered.filter(n => !n.isRead).length)
+      // allSettled — a C# failure can never suppress Java notifications
+      const [javaResult, csResult] = await Promise.allSettled([
+        fetch('/api/notifications/list?page=0&size=30'),
+        fetch('/api/csharp-notifications/list?page=0&size=30'),
+      ])
+
+      const deleted = getDeletedIds()
+      deletedIds.current = deleted
+
+      let javaNotifs: Notification[] = []
+      if (javaResult.status === 'fulfilled' && javaResult.value.ok) {
+        try {
+          const data: NotificationPage = await javaResult.value.json()
+          javaNotifs = (data.content ?? [])
+            .filter(n => !deleted.has(n.id))
+            .map(n => ({ ...n, source: 'java' as const }))
+        } catch (err) {
+          console.error('[Notifications] Failed to parse Java list response:', err)
+        }
+      } else if (javaResult.status === 'rejected') {
+        console.error('[Notifications] Java list fetch rejected:', javaResult.reason)
+      } else if (javaResult.status === 'fulfilled') {
+        console.warn('[Notifications] Java list route returned', javaResult.value.status)
       }
-    } catch {
-      // silently fail
+
+      let csNotifs: Notification[] = []
+      if (csResult.status === 'fulfilled' && csResult.value.ok) {
+        try {
+          const data = await csResult.value.json()
+          csNotifs = (data.content ?? []).map(
+            (n: Notification) => ({ ...n, source: 'csharp' as const })
+          )
+        } catch (err) {
+          console.error('[Notifications] Failed to parse C# list response:', err)
+        }
+      }
+
+      // Merge and sort newest first
+      const merged = [...javaNotifs, ...csNotifs].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
+      setNotifications(merged)
+      // Derive accurate count from the authoritative merged list
+      setUnreadCount(merged.filter(n => !n.isRead).length)
+    } catch (err) {
+      console.error('[Notifications] fetchList unexpected error:', err)
     } finally {
       setIsLoading(false)
     }
@@ -103,8 +151,13 @@ export function useNotifications() {
   // ── Actions ────────────────────────────────────────────────────────────────
 
   const markAsRead = useCallback(async (id: string) => {
+    const notif = notificationsRef.current.find(n => n.id === id)
+    const endpoint =
+      notif?.source === 'csharp'
+        ? `/api/csharp-notifications/${id}/read`
+        : `/api/notifications/${id}/read`
     try {
-      await fetch(`/api/notifications/${id}/read`, { method: 'PUT' })
+      await fetch(endpoint, { method: 'PUT' })
       setNotifications(prev =>
         prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
       )
@@ -117,7 +170,11 @@ export function useNotifications() {
 
   const markAllAsRead = useCallback(async () => {
     try {
-      await fetch('/api/notifications/read-all', { method: 'PUT' })
+      // Fire both services in parallel; ignore individual failures
+      await Promise.all([
+        fetch('/api/notifications/read-all', { method: 'PUT' }),
+        fetch('/api/csharp-notifications/read-all', { method: 'PUT' }),
+      ])
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
       setUnreadCount(0)
       broadcastSync()
@@ -127,10 +184,18 @@ export function useNotifications() {
   }, [])
 
   const deleteNotification = useCallback((id: string) => {
-    const ids = getDeletedIds()
-    ids.add(id)
-    saveDeletedIds(ids)
-    deletedIds.current = ids
+    const notif = notificationsRef.current.find(n => n.id === id)
+
+    if (notif?.source === 'csharp') {
+      // Server-side delete for C# notifications (fire-and-forget)
+      fetch(`/api/csharp-notifications/${id}`, { method: 'DELETE' }).catch(() => {})
+    } else {
+      // Client-side soft-delete for Java notifications (existing behaviour)
+      const ids = getDeletedIds()
+      ids.add(id)
+      saveDeletedIds(ids)
+      deletedIds.current = ids
+    }
 
     setNotifications(prev => {
       const removed = prev.find(n => n.id === id)

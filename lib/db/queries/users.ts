@@ -25,7 +25,7 @@ async function getUserEnrollments(userId: string): Promise<Array<{ id: string; c
  * This mimics the cascadeDeleteEnrollmentData logic from unenrollment.ts
  * but WITHOUT any soft_delete for paid courses
  */
-async function cascadeDeleteForCourse(userId: string, courseId: string): Promise<void> {
+export async function cascadeDeleteForCourse(userId: string, courseId: string): Promise<void> {
   try {
     console.log(`[CASCADE] FORCE deleting all data for user ${userId} in course ${courseId}`);
 

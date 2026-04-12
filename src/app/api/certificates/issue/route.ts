@@ -471,6 +471,7 @@ import { issueCertificate } from '@/lib/db/queries/certificates';
 import { sql } from '@/lib/db/index';
 import { fireAchievementTrigger } from '@/lib/achievements/achievement-engine';
 import { TRIGGERS } from '@/lib/achievements/triggers';
+import { sendNotification } from '@/lib/notifications/send-notification';
 
 function generateCertCode(): string {
   const year = new Date().getFullYear();
@@ -563,6 +564,15 @@ export async function POST(request: NextRequest) {
               courseId: s.course_id,
               score:    Math.round(s.overall_score),
             }).catch(() => {});
+            sendNotification({
+              userId: s.student_id,
+              notificationType: 'CERTIFICATE_ISSUED',
+              title: '🏆 Certificate Issued!',
+              message: `Congratulations! Your certificate for "${s.course_title}" has been issued.`,
+              actionUrl: '/dashboard/certificates',
+              iconType: 'certificate',
+              data: { courseId: s.course_id, certCode: result.certificate?.certificate_code },
+            }).catch(() => {});
           }
           return result;
         })
@@ -627,6 +637,16 @@ export async function POST(request: NextRequest) {
     fireAchievementTrigger(student_id, TRIGGERS.CERTIFICATE_ISSUED, {
       courseId: course_id,
       score:    Math.round(overall_score ?? 0),
+    }).catch(() => {});
+    // 🔔 Fire certificate notification (fire-and-forget)
+    sendNotification({
+      userId: student_id,
+      notificationType: 'CERTIFICATE_ISSUED',
+      title: '🏆 Certificate Issued!',
+      message: `Congratulations! Your certificate for "${course_title}" has been issued.`,
+      actionUrl: '/dashboard/certificates',
+      iconType: 'certificate',
+      data: { courseId: course_id, certCode: result.certificate?.certificate_code },
     }).catch(() => {});
 
     return Response.json({

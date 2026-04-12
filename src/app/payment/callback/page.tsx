@@ -20,7 +20,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle, XCircle, Loader2, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { verifyPaymentAction } from '@/lib/courses/payment-enrollment-actions'
+import { verifyPaymentAction, checkPaymentAlreadyProcessed } from '@/lib/courses/payment-enrollment-actions'
 
 // ── Inner component that reads search params ──────────────────────────────────
 
@@ -42,27 +42,35 @@ function CallbackContent() {
       return
     }
 
-    verifyPaymentAction(reference).then((result) => {
-      if (result.success && result.data?.status === 'SUCCESS') {
-        setStatus('success')
-        setMessage(result.message)
-        const cId = result.data.courseId
-        setCourseId(cId)
-
-        // Auto-redirect to course after 3 seconds
-        if (cId) {
-          setTimeout(() => {
-            router.push(`/courses/learn/${cId}`)
-          }, 3000)
-        }
-      } else {
-        setStatus('failed')
-        setMessage(
-          result.error ||
-          result.message ||
-          'Payment could not be verified. Please contact support.'
-        )
+    // ── Guard: if this reference was already verified, redirect immediately.
+    checkPaymentAlreadyProcessed(reference).then((check) => {
+      if (check.alreadyProcessed && check.courseId) {
+        router.replace(`/courses/learn/${check.courseId}`)
+        return
       }
+
+      verifyPaymentAction(reference).then((result) => {
+        if (result.success && result.data?.status === 'SUCCESS') {
+          setStatus('success')
+          setMessage(result.message)
+          const cId = result.data.courseId
+          setCourseId(cId)
+
+          // Use replace so the user cannot press Back to return to this page
+          if (cId) {
+            setTimeout(() => {
+              router.replace(`/courses/learn/${cId}`)
+            }, 3000)
+          }
+        } else {
+          setStatus('failed')
+          setMessage(
+            result.error ||
+            result.message ||
+            'Payment could not be verified. Please contact support.'
+          )
+        }
+      })
     })
   }, [searchParams, router])
 
@@ -92,7 +100,7 @@ function CallbackContent() {
             </p>
             {courseId && (
               <Button
-                onClick={() => router.push(`/courses/learn/${courseId}`)}
+                onClick={() => router.replace(`/courses/learn/${courseId}`)}
                 className="w-full bg-green-600 hover:bg-green-700 text-white"
               >
                 <BookOpen className="w-4 h-4 mr-2" />

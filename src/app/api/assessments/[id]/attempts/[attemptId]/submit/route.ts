@@ -78,6 +78,7 @@
 // /src/app/api/assessments/[id]/attempts/[attemptId]/submit/route.ts - UPDATED VERSION
 
 import { NextRequest, NextResponse } from 'next/server';
+import { sendNotification } from '@/lib/notifications/send-notification';
 import { getSession } from '@/lib/auth/session';
 import { submitAssessmentAttemptAction } from '@/lib/assessments/attempt-actions';
 
@@ -140,6 +141,23 @@ export async function POST(
         },
         { status: 400 }
       );
+    }
+
+    // Fire quiz notification (fire-and-forget — never blocks the response)
+    if (result.success && session) {
+      const score  = (result as any).attempt?.score  ?? (result as any).score  ?? 0
+      const passed = (result as any).attempt?.passed ?? (result as any).passed ?? false
+      sendNotification({
+        userId: session.userId,
+        notificationType: passed ? 'quiz_passed' : 'quiz_failed',
+        title: passed ? 'Quiz Passed! 🎉' : 'Quiz Attempt Complete',
+        message: passed
+          ? `You scored ${score}% on this quiz. Excellent work!`
+          : `You scored ${score}% on this quiz. Keep practising!`,
+        actionUrl: `/courses/assessment/${params.id}/results`,
+        iconType: 'quiz',
+        data: { assessmentId: params.id, attemptId: params.attemptId, score, passed },
+      }).catch(() => {})
     }
 
     return NextResponse.json({

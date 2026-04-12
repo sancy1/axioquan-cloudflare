@@ -11,10 +11,30 @@ import {
   recordPaymentInitiation,
   updatePaymentStatus,
   hasUserPurchasedCourse,
+  getPaymentByReference,
 } from '@/lib/db/queries/payments'
 import { getCourseDetails } from '@/lib/db/queries/courses'
 import { enrollUserInCourse } from '@/lib/db/queries/courses'
 import type { InitializePaymentRequest, InitializePaymentResponse } from '@/types/payments'
+import { sendNotification } from '@/lib/notifications/send-notification'
+
+/**
+ * Check whether a payment reference has already been processed (success page shown).
+ * Called at the top of the success page to prevent re-processing.
+ */
+export async function checkPaymentAlreadyProcessed(
+  reference: string
+): Promise<{ alreadyProcessed: boolean; courseId?: string }> {
+  try {
+    const payment = await getPaymentByReference(reference)
+    if (payment?.status === 'SUCCESS' && payment.paid_at) {
+      return { alreadyProcessed: true, courseId: payment.course_id }
+    }
+    return { alreadyProcessed: false }
+  } catch {
+    return { alreadyProcessed: false }
+  }
+}
 
 /**
  * Initiate payment for a course
@@ -50,6 +70,16 @@ export async function initiatePaymentAction(
         success: false,
         message: 'Unauthorized',
         error: 'You must be logged in',
+      }
+    }
+
+    // ─── Step 1b: Students only ───
+    if (!session.roles?.includes('student')) {
+      return {
+        success: false,
+        message: 'Students Only',
+        error:
+          'Only accounts with the Student role can enroll in courses or make payments. Please register a student account to continue.',
       }
     }
 
@@ -103,6 +133,16 @@ export async function initiatePaymentAction(
       }
 
       console.log('[PAYMENT ACTION] ✓ User enrolled in FREE course')
+      // Fire enrollment notification (fire-and-forget)
+      sendNotification({
+        userId: session.userId,
+        notificationType: 'COURSE_ENROLLED',
+        title: '🎓 Enrolled Successfully!',
+        message: `You are now enrolled in "${(course as any).title ?? 'this course'}". Start learning today!`,
+        actionUrl: `/courses/learn/${courseId}`,
+        iconType: 'course',
+        data: { courseId },
+      }).catch(() => {})
       return {
         success: true,
         message: 'Successfully enrolled in free course',
@@ -306,6 +346,16 @@ export async function initiatePaymentAction(
       }
 
       console.log('[PAYMENT ACTION] ✓ User enrolled in FREE course')
+      // Fire enrollment notification (fire-and-forget)
+      sendNotification({
+        userId: session.userId,
+        notificationType: 'COURSE_ENROLLED',
+        title: '🎓 Enrolled Successfully!',
+        message: `You are now enrolled in "${(course as any).title ?? 'this course'}". Start learning today!`,
+        actionUrl: `/courses/learn/${courseId}`,
+        iconType: 'course',
+        data: { courseId },
+      }).catch(() => {})
       return {
         success: true,
         message: 'Successfully enrolled in free course',

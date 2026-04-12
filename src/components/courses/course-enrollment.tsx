@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Check, Loader2, LogIn } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { initiatePaymentAction } from '@/lib/courses/payment-enrollment-actions';
 
 interface CourseEnrollmentProps {
@@ -28,7 +28,6 @@ export function CourseEnrollment({ courseId, courseSlug, priceCents, initialHasA
   const [enrollmentStatus, setEnrollmentStatus] = useState<string>('unknown');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
-  const { toast } = useToast();
 
   const isFree = !priceCents || priceCents === 0;
 
@@ -123,11 +122,9 @@ export function CourseEnrollment({ courseId, courseSlug, priceCents, initialHasA
 
       if (!paymentResult.success) {
         console.error('[ENROLL] Payment initiation failed:', paymentResult.error);
-        toast({
-          title: 'Enrollment Failed',
+        toast.error('Enrollment Failed', {
           description: paymentResult.error || 'Failed to process enroll request. Please try again.',
-          variant: 'destructive',
-          duration: 5000,
+          duration: 6000,
         });
         return;
       }
@@ -138,8 +135,7 @@ export function CourseEnrollment({ courseId, courseSlug, priceCents, initialHasA
         setIsEnrolled(true);
         setEnrollmentStatus('active');
 
-        toast({
-          title: '🎉 Successfully Enrolled!',
+        toast.success('🎉 Successfully Enrolled!', {
           description: "You've enrolled in this free course. Start learning now!",
           duration: 5000,
         });
@@ -157,8 +153,7 @@ export function CourseEnrollment({ courseId, courseSlug, priceCents, initialHasA
           paystackUrl: paystackUrl || '(none — may be pending)',
         });
 
-        toast({
-          title: '💳 Redirecting to Payment',
+        toast.loading('💳 Redirecting to Payment', {
           description: 'You will be redirected to complete your payment...',
           duration: 3000,
         });
@@ -174,19 +169,15 @@ export function CourseEnrollment({ courseId, courseSlug, priceCents, initialHasA
         }, 500);
       } else {
         console.error('[ENROLL] Unexpected status:', paymentResult.data?.status);
-        toast({
-          title: 'Unexpected Response',
+        toast.error('Unexpected Response', {
           description: 'Payment service returned unexpected status. Please try again.',
-          variant: 'destructive',
           duration: 5000,
         });
       }
     } catch (error: any) {
       console.error('[ENROLL] Error:', error);
-      toast({
-        title: 'Network Error',
+      toast.error('Network Error', {
         description: 'Failed to connect to server. Please check your connection.',
-        variant: 'destructive',
         duration: 5000,
       });
     } finally {

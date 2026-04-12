@@ -16,6 +16,7 @@
 
 import { sql } from '@/lib/db/index'
 import { TRIGGERS, TriggerEvent } from './triggers'
+import { sendNotification } from '@/lib/notifications/send-notification'
 
 // ── Context passed with each trigger ────────────────────────────────────────
 export interface TriggerContext {
@@ -278,6 +279,16 @@ export async function fireAchievementTrigger(
         await writeAward(userId, achievementId, xp)
         newlyAwarded.push(def.name)
         console.log(`🏆 Achievement awarded: "${def.name}" → user ${userId}`)
+        // Notify the user (fire-and-forget)
+        sendNotification({
+          userId,
+          notificationType: 'ACHIEVEMENT_UNLOCKED',
+          title: '🏆 Achievement Unlocked!',
+          message: `You earned the "${def.name}" achievement. Keep it up!`,
+          actionUrl: '/dashboard/achievements',
+          iconType: 'achievement',
+          data: { achievement: def.name, xp },
+        }).catch(() => {})
       } catch (err) {
         console.error(`⚠️ Achievement check failed for "${def.name}":`, err)
       }
