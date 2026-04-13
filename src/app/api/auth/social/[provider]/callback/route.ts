@@ -141,7 +141,8 @@ export async function GET(
 
   const mode = storedState.startsWith('signup:') ? 'signup' : 'signin';
   const errorBase = mode === 'signup' ? '/signup' : '/login';
-  const callbackUrl = `${request.nextUrl.origin}/api/auth/social/${provider}/callback`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+  const callbackUrl = `${appUrl}/api/auth/social/${provider}/callback`;
 
   // ── Fetch provider profile ──
   let profile: OAuthProfile;

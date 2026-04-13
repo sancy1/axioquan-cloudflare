@@ -32,7 +32,8 @@ export async function GET(
 
   // CSRF state: encode mode so the callback knows which flow to run
   const state = `${mode}:${crypto.randomUUID()}`;
-  const callbackUrl = `${request.nextUrl.origin}/api/auth/social/${provider}/callback`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+  const callbackUrl = `${appUrl}/api/auth/social/${provider}/callback`;
 
   const authParams = new URLSearchParams({
     client_id: config.clientId,
