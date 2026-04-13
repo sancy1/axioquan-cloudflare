@@ -129,10 +129,12 @@ export async function GET(
   const cookieStore = await cookies();
   const storedState = cookieStore.get('oauth_state')?.value;
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+
   // ── CSRF validation ──
   if (!code || !state || !storedState || state !== storedState) {
     return NextResponse.redirect(
-      new URL('/login?error=oauth_state_mismatch', request.url),
+      new URL('/login?error=oauth_state_mismatch', appUrl),
     );
   }
 
@@ -141,7 +143,6 @@ export async function GET(
 
   const mode = storedState.startsWith('signup:') ? 'signup' : 'signin';
   const errorBase = mode === 'signup' ? '/signup' : '/login';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
   const callbackUrl = `${appUrl}/api/auth/social/${provider}/callback`;
 
   // ── Fetch provider profile ──
@@ -153,19 +154,19 @@ export async function GET(
       profile = await getGitHubProfile(code, callbackUrl);
     } else {
       return NextResponse.redirect(
-        new URL('/login?error=invalid_provider', request.url),
+        new URL('/login?error=invalid_provider', appUrl),
       );
     }
 
     if (!profile.email) {
       return NextResponse.redirect(
-        new URL(`${errorBase}?error=no_email`, request.url),
+        new URL(`${errorBase}?error=no_email`, appUrl),
       );
     }
   } catch (err) {
     console.error('❌ OAuth profile fetch error:', err);
     return NextResponse.redirect(
-      new URL(`${errorBase}?error=oauth_failed`, request.url),
+      new URL(`${errorBase}?error=oauth_failed`, appUrl),
     );
   }
 
@@ -178,16 +179,16 @@ export async function GET(
   } catch (err) {
     console.error('❌ OAuth action threw unexpectedly:', err);
     return NextResponse.redirect(
-      new URL(`${errorBase}?error=server_error`, request.url),
+      new URL(`${errorBase}?error=server_error`, appUrl),
     );
   }
 
   if (!result.success) {
     console.error(`❌ OAuth ${mode} failed: error=${result.error}, provider=${provider}, email=${profile.email}`);
     return NextResponse.redirect(
-      new URL(`${errorBase}?error=${result.error}`, request.url),
+      new URL(`${errorBase}?error=${result.error}`, appUrl),
     );
   }
 
-  return NextResponse.redirect(new URL('/dashboard', request.url));
+  return NextResponse.redirect(new URL('/dashboard', appUrl));
 }
