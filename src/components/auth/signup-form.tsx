@@ -246,11 +246,13 @@
 
 'use client';
 
+import { Suspense } from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { signUpUser } from '@/lib/auth/actions';
 import { Eye, EyeOff } from 'lucide-react';
+import SocialButtons from './social-buttons';
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -450,6 +452,11 @@ export default function SignUpForm() {
           'Create account'
         )}
       </button>
+
+      {/* Social sign-up */}
+      <Suspense fallback={null}>
+        <SocialButtons mode="signup" />
+      </Suspense>
 
       {/* Sign in link */}
       <p className="text-center text-gray-600 text-xs pt-2">

@@ -94,52 +94,13 @@ export default function NotificationsPage() {
   const fetchAll = useCallback(async () => {
     setIsLoading(true)
     try {
-      // allSettled — a C# failure can never suppress Java notifications
-      const [javaResult, csResult] = await Promise.allSettled([
-        fetch('/api/notifications/list?page=0&size=100'),
-        fetch('/api/csharp-notifications/list?page=0&size=100'),
-      ])
-
-      const DELETED_KEY = 'axioquan-deleted-notifications'
-      let deleted: Set<string> = new Set()
-      try {
-        const raw = localStorage.getItem(DELETED_KEY)
-        deleted = new Set(raw ? (JSON.parse(raw) as string[]) : [])
-      } catch { /* ignore */ }
-
-      let javaNotifs: Notification[] = []
-      if (javaResult.status === 'fulfilled' && javaResult.value.ok) {
-        try {
-          const data = await javaResult.value.json()
-          javaNotifs = (data.content ?? [])
-            .filter((n: Notification) => !deleted.has(n.id))
-            .map((n: Notification) => ({ ...n, source: 'java' as const }))
-        } catch (err) {
-          console.error('[Notifications] Failed to parse Java list response:', err)
-        }
-      } else if (javaResult.status === 'rejected') {
-        console.error('[Notifications] Java list fetch rejected:', javaResult.reason)
-      } else if (javaResult.status === 'fulfilled') {
-        console.warn('[Notifications] Java list route returned', javaResult.value.status)
-      }
-
-      let csNotifs: Notification[] = []
-      if (csResult.status === 'fulfilled' && csResult.value.ok) {
-        try {
-          const data = await csResult.value.json()
-          csNotifs = (data.content ?? []).map(
-            (n: Notification) => ({ ...n, source: 'csharp' as const })
-          )
-        } catch (err) {
-          console.error('[Notifications] Failed to parse C# list response:', err)
-        }
-      }
-
-      setNotifications(
-        [...javaNotifs, ...csNotifs].sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
+      const res = await fetch('/api/csharp-notifications/list?page=0&size=100')
+      if (!res.ok) return
+      const data = await res.json()
+      const notifs: Notification[] = (data.content ?? []).map(
+        (n: Notification) => ({ ...n, source: 'csharp' as const })
       )
+      setNotifications(notifs)
     } catch (err) {
       console.error('[Notifications] fetchAll unexpected error:', err)
     } finally {
@@ -150,37 +111,18 @@ export default function NotificationsPage() {
   useEffect(() => { fetchAll() }, [fetchAll])
 
   const markAsRead = async (id: string) => {
-    const notif = notifications.find(n => n.id === id)
-    const endpoint = notif?.source === 'csharp'
-      ? `/api/csharp-notifications/${id}/read`
-      : `/api/notifications/${id}/read`
-    await fetch(endpoint, { method: 'PUT' }).catch(() => {})
+    await fetch(`/api/csharp-notifications/${id}/read`, { method: 'PUT' }).catch(() => {})
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n))
   }
 
   const markAllAsRead = async () => {
-    await Promise.all([
-      fetch('/api/notifications/read-all', { method: 'PUT' }),
-      fetch('/api/csharp-notifications/read-all', { method: 'PUT' }),
-    ]).catch(() => {})
+    await fetch('/api/csharp-notifications/read-all', { method: 'PUT' }).catch(() => {})
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
   }
 
   const deleteNotification = (id: string) => {
     setDeletingIds(prev => new Set(prev).add(id))
-    const notif = notifications.find(n => n.id === id)
-    if (notif?.source === 'csharp') {
-      fetch(`/api/csharp-notifications/${id}`, { method: 'DELETE' }).catch(() => {})
-    } else {
-      // Soft-delete Java notifications in localStorage
-      const DELETED_KEY = 'axioquan-deleted-notifications'
-      try {
-        const raw = localStorage.getItem(DELETED_KEY)
-        const ids: Set<string> = new Set(raw ? (JSON.parse(raw) as string[]) : [])
-        ids.add(id)
-        localStorage.setItem(DELETED_KEY, JSON.stringify([...ids]))
-      } catch { /* ignore */ }
-    }
+    fetch(`/api/csharp-notifications/${id}`, { method: 'DELETE' }).catch(() => {})
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id))
       setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next })

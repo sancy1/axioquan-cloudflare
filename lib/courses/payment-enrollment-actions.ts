@@ -554,6 +554,17 @@ export async function verifyPaymentAction(
       lifetime: paymentData.isPaid,
     })
 
+    // Fire payment-success notification via C# service (fire-and-forget)
+    sendNotification({
+      userId: session.userId,
+      notificationType: 'PAYMENT_SUCCESS',
+      title: '✅ Payment Successful!',
+      message: `You now have lifetime access to this course. Start learning today!`,
+      actionUrl: `/courses/learn/${paymentData.courseId}`,
+      iconType: 'payment',
+      data: { courseId: paymentData.courseId, paymentReference },
+    }).catch(() => {})
+
     return {
       success: true,
       message: '✅ Payment confirmed! You now have lifetime access to this course.',

@@ -256,7 +256,8 @@ export function UserProfileNav({
               </svg>
               <span>Edit Profile</span>
             </Link>
-            
+
+            {/* Settings page is currently empty — profile handles all user settings
             <Link
               href="/dashboard/settings"
               className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
@@ -268,6 +269,7 @@ export function UserProfileNav({
               </svg>
               <span>Settings</span>
             </Link>
+            */}
 
             <div className="border-t border-gray-100 my-1"></div>
 

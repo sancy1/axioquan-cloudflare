@@ -1,6 +1,6 @@
 // src/app/api/csharp-notifications/count/route.ts
 // Returns the user's unread notification count from the C# service.
-// Response shape: { count: number }
+// Response shape: { unreadCount: number }
 
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth/session'
@@ -11,11 +11,11 @@ import {
 
 export async function GET() {
   const session = await getSession()
-  if (!session) return NextResponse.json({ count: 0 }, { status: 401 })
+  if (!session) return NextResponse.json({ unreadCount: 0 }, { status: 401 })
 
   const tokenResult = await generateCsharpToken(session.userId)
   if (!tokenResult.success || !tokenResult.token) {
-    return NextResponse.json({ count: 0 }, { status: 502 })
+    return NextResponse.json({ unreadCount: 0 }, { status: 502 })
   }
 
   try {
@@ -26,10 +26,12 @@ export async function GET() {
         headers: { Authorization: `Bearer ${tokenResult.token}` },
       }
     )
-    if (!res.ok) return NextResponse.json({ count: 0 })
+    if (!res.ok) return NextResponse.json({ unreadCount: 0 })
     const data = await res.json()
-    return NextResponse.json({ count: data.count ?? 0 })
+    // C# may return { unreadCount } or { count } — try both
+    const count = data.unreadCount ?? data.count ?? 0
+    return NextResponse.json({ unreadCount: count })
   } catch {
-    return NextResponse.json({ count: 0 })
+    return NextResponse.json({ unreadCount: 0 })
   }
 }
