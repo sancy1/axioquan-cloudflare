@@ -236,16 +236,17 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
 
-      {/* Email */}
+      {/* Email or Username */}
       <div className="space-y-1.5">
         <label htmlFor="email" className="text-gray-400 text-xs font-medium tracking-wide uppercase">
-          Email address
+          Email or Username
         </label>
         <input
           id="email"
           name="email"
-          type="email"
-          placeholder="you@university.edu"
+          type="text"
+          autoComplete="username"
+          placeholder="you@example.com or john_doe"
           value={formData.email}
           onChange={handleChange}
           required

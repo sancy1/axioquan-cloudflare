@@ -465,8 +465,63 @@ export async function verifyPaymentAction(
     // Java service checks with Paystack and database trigger auto-creates enrollment
     // IMPORTANT: /api/v1/payments/verify/* is a protected endpoint — must send Bearer token
     console.log('[VERIFY PAYMENT] Calling Java service to verify with Paystack...')
-    const authToken = session.paymentToken || undefined
-    const verifyResponse = await paymentApi.verifyPayment(paymentReference, authToken)
+    let authToken = session.paymentToken || undefined
+
+    // On-demand token generation if missing from session
+    if (!authToken) {
+      console.warn('[VERIFY PAYMENT] ⚠️ Payment token missing — generating on-demand')
+      try {
+        const tokenResponse = await paymentApi.generatePaymentToken(session.userId, session.email, session.name)
+        if (tokenResponse.success && tokenResponse.data?.token) {
+          authToken = tokenResponse.data.token
+          await updateSessionPaymentToken(session.userId, authToken).catch(() => {})
+          console.log('[VERIFY PAYMENT] ✓ Generated payment token on-demand')
+        } else {
+          console.error('[VERIFY PAYMENT] Failed to generate token on-demand:', tokenResponse.error)
+          return {
+            success: false,
+            message: 'Authorization Error',
+            error: 'Could not authenticate with payment service. Please log in again.',
+          }
+        }
+      } catch (tokenErr) {
+        console.error('[VERIFY PAYMENT] Error generating token:', tokenErr)
+        return {
+          success: false,
+          message: 'Authorization Error',
+          error: 'Could not authenticate with payment service.',
+        }
+      }
+    }
+
+    let verifyResponse = await paymentApi.verifyPayment(paymentReference, authToken)
+
+    // ─── 403 token refresh: stale/invalid token → regenerate once and retry ───
+    if (!verifyResponse.success && verifyResponse.httpStatus === 403) {
+      console.warn('[VERIFY PAYMENT] 403 on verify — token stale, regenerating...')
+      try {
+        const freshTokenResponse = await paymentApi.generatePaymentToken(session.userId, session.email, session.name)
+        if (freshTokenResponse.success && freshTokenResponse.data?.token) {
+          authToken = freshTokenResponse.data.token
+          await updateSessionPaymentToken(session.userId, authToken).catch(() => {})
+          console.log('[VERIFY PAYMENT] ✓ Fresh token obtained — retrying verify')
+          verifyResponse = await paymentApi.verifyPayment(paymentReference, authToken)
+        } else {
+          return {
+            success: false,
+            message: 'Session Expired',
+            error: 'Your payment session has expired. Please log out and log back in.',
+          }
+        }
+      } catch (refreshError) {
+        console.error('[VERIFY PAYMENT] Error refreshing token:', refreshError)
+        return {
+          success: false,
+          message: 'Session Expired',
+          error: 'Your payment session has expired. Please log out and log back in.',
+        }
+      }
+    }
 
     if (!verifyResponse.success) {
       console.error('[VERIFY PAYMENT] ❌ Java service verification failed:', verifyResponse.error)

@@ -34,9 +34,9 @@ const contentTypeOptions = [
 
 const priceRangeOptions = [
   { value: 'free', label: 'Free' },
-  { value: '0-100', label: 'Paid ($0 - $100)' },
-  { value: '100-500', label: 'Premium ($100 - $500)' },
-  { value: '500+', label: 'Expert ($500+)' }
+  { value: '0-100', label: 'Paid (₦0 - ₦10,000)' },
+  { value: '100-500', label: 'Premium (₦10,000 - ₦50,000)' },
+  { value: '500+', label: 'Expert (₦50,000+)' }
 ];
 
 const ratingOptions = [

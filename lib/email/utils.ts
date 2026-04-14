@@ -87,3 +87,78 @@ export async function testEmailConfig(): Promise<{ success: boolean; message: st
     };
   }
 }
+
+/**
+ * Send email verification OTP via EmailJS REST API (port 443 — not blocked by Render).
+ * Used during signup to verify the user's email address.
+ * Dev mode: logs OTP to console only to preserve monthly quota.
+ */
+export async function sendEmailVerificationOTP(email: string, otp: string): Promise<boolean> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[DEV] Email Verification OTP for ${email}: ${otp}`);
+    return true;
+  }
+
+  const payload = {
+    service_id: process.env.EMAILJS_SERVICE_ID,
+    template_id: process.env.EMAILJS_TEMPLATE_ID,
+    user_id: process.env.EMAILJS_PUBLIC_KEY,
+    accessToken: process.env.EMAILJS_PRIVATE_KEY,
+    template_params: {
+      user_email: email,
+      otp_code: otp,
+    },
+  };
+
+  try {
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) return true;
+    console.error('❌ EmailJS error:', await res.text());
+    return false;
+  } catch (err: any) {
+    console.error('❌ EmailJS fetch error:', err.message);
+    return false;
+  }
+}
+
+/**
+ * Send password reset OTP via EmailJS REST API (port 443 — not blocked by Render).
+ * Dev mode: logs OTP to console only to preserve monthly quota.
+ */
+export async function sendPasswordResetOTP(email: string, otp: string): Promise<boolean> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[DEV] Password Reset OTP for ${email}: ${otp}`);
+    return true;
+  }
+
+  const payload = {
+    service_id: process.env.EMAILJS_SERVICE_ID,
+    template_id: process.env.EMAILJS_TEMPLATE_ID,
+    user_id: process.env.EMAILJS_PUBLIC_KEY,
+    accessToken: process.env.EMAILJS_PRIVATE_KEY,
+    template_params: {
+      user_email: email,
+      otp_code: otp,
+    },
+  };
+
+  try {
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) return true;
+    console.error('❌ EmailJS error:', await res.text());
+    return false;
+  } catch (err: any) {
+    console.error('❌ EmailJS fetch error:', err.message);
+    return false;
+  }
+}

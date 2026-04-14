@@ -5,14 +5,13 @@
 'use server';
 
 import { sql } from '@lib/db';
-import { hashPassword, validatePasswordStrength, verifyPassword } from './password';
+import { hashPassword, validatePasswordStrength, validateUsername, verifyPassword } from './password';
 import { SignUpFormData, LoginFormData, AuthUser, ChangePasswordData, PasswordResetRequestData, PasswordResetConfirmData, TokenValidationResponse } from '@/types/auth';
 import { User } from '@/types/database';
 import { getSession, createSession, destroySession, refreshSession } from './session';
 import { redirect } from 'next/navigation';
 import { randomBytes } from 'crypto';
-import { sendEmail } from '@/lib/email/utils';
-import { createPasswordResetEmail } from '@/lib/email/templates/password-reset';
+import { sendPasswordResetOTP, sendEmailVerificationOTP } from '@/lib/email/utils';
 import { generatePaymentToken, paymentApi } from '@/lib/payment/java-payment-api';
 
 
@@ -26,7 +25,17 @@ export async function signUpUser(formData: SignUpFormData): Promise<{
   errors?: string[];
 }> {
   try {
-    // 1️⃣ Validate password strength
+    // 1️⃣ Validate username
+    const usernameValidation = validateUsername(formData.username);
+    if (!usernameValidation.isValid) {
+      return {
+        success: false,
+        message: 'Invalid username',
+        errors: usernameValidation.errors,
+      };
+    }
+
+    // 2️⃣ Validate password strength
     const passwordValidation = validatePasswordStrength(formData.password);
     if (!passwordValidation.isValid) {
       return {
@@ -36,7 +45,7 @@ export async function signUpUser(formData: SignUpFormData): Promise<{
       };
     }
 
-    // 2️⃣ Confirm password match
+    // 3️⃣ Confirm password match
     if (formData.password !== formData.confirmPassword) {
       return {
         success: false,
@@ -45,7 +54,7 @@ export async function signUpUser(formData: SignUpFormData): Promise<{
       };
     }
 
-    // 3️⃣ Check for existing user
+    // 4️⃣ Check for existing user
     const existingUser = await sql`
       SELECT id FROM users WHERE email = ${formData.email} OR username = ${formData.username}
     `;
@@ -145,25 +154,51 @@ export async function loginUser(credentials: LoginFormData): Promise<{
   errors?: string[];
 }> {
   try {
-    // 1️⃣ Get user and roles
-    const userWithPassword = await sql`
-      SELECT 
-        u.*,
-        ARRAY_AGG(r.name) AS roles,
-        (
-          SELECT r.name 
-          FROM user_roles ur 
-          JOIN roles r ON ur.role_id = r.id 
-          WHERE ur.user_id = u.id AND ur.is_primary = true 
-          LIMIT 1
-        ) AS primary_role
-      FROM users u
-      LEFT JOIN user_roles ur ON u.id = ur.user_id
-      LEFT JOIN roles r ON ur.role_id = r.id
-      WHERE u.email = ${credentials.email} AND u.is_active = true
-      GROUP BY u.id
-      LIMIT 1
-    `;
+    // 1️⃣ Detect whether the identifier is an email or a username
+    const identifier = credentials.email.trim().toLowerCase();
+    const isEmail = identifier.includes('@');
+
+    // 2️⃣ Get user and roles — query by email OR username
+    let userWithPassword;
+    if (isEmail) {
+      userWithPassword = await sql`
+        SELECT
+          u.*,
+          ARRAY_AGG(r.name) AS roles,
+          (
+            SELECT r.name
+            FROM user_roles ur
+            JOIN roles r ON ur.role_id = r.id
+            WHERE ur.user_id = u.id AND ur.is_primary = true
+            LIMIT 1
+          ) AS primary_role
+        FROM users u
+        LEFT JOIN user_roles ur ON u.id = ur.user_id
+        LEFT JOIN roles r ON ur.role_id = r.id
+        WHERE u.email = ${identifier} AND u.is_active = true
+        GROUP BY u.id
+        LIMIT 1
+      `;
+    } else {
+      userWithPassword = await sql`
+        SELECT
+          u.*,
+          ARRAY_AGG(r.name) AS roles,
+          (
+            SELECT r.name
+            FROM user_roles ur
+            JOIN roles r ON ur.role_id = r.id
+            WHERE ur.user_id = u.id AND ur.is_primary = true
+            LIMIT 1
+          ) AS primary_role
+        FROM users u
+        LEFT JOIN user_roles ur ON u.id = ur.user_id
+        LEFT JOIN roles r ON ur.role_id = r.id
+        WHERE u.username = ${identifier} AND u.is_active = true
+        GROUP BY u.id
+        LIMIT 1
+      `;
+    }
 
     const user = userWithPassword[0] as (User & { roles: string[]; primary_role: string });
     if (!user) {
@@ -764,12 +799,12 @@ export async function requestPasswordReset(
     if (!user) {
       return {
         success: true,
-        message: 'If an account with that email exists, a password reset link has been sent.',
+        message: 'If an account with that email exists, a 6-digit code has been sent.',
       };
     }
 
-    // 2️⃣ Generate secure reset token
-    const resetToken = randomBytes(32).toString('hex');
+    // 2️⃣ Generate 6-digit OTP
+    const resetToken = String(Math.floor(100000 + Math.random() * 900000));
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour expiry
 
     // 3️⃣ Delete any existing reset tokens for this user
@@ -784,24 +819,15 @@ export async function requestPasswordReset(
       VALUES (${user.id}, ${resetToken}, ${expiresAt})
     `;
 
-    // 5️⃣ Generate reset link
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
-
-    // 6️⃣ Send email
-    const emailSent = await sendEmail({
-      to: user.email,
-      subject: 'Reset Your AxioQuan Password',
-      html: createPasswordResetEmail(resetLink, user.name),
-    });
+    // 5️⃣ Send OTP via EmailJS (port 443 — bypasses Render firewall)
+    const emailSent = await sendPasswordResetOTP(user.email, resetToken);
 
     if (!emailSent) {
       // Don't throw error, just log and continue
-      console.error('❌ Failed to send password reset email for:', user.email);
-      // Still return success to prevent email enumeration
+      console.error('❌ Failed to send password reset OTP for:', user.email);
       return {
         success: true,
-        message: 'If an account with that email exists, a password reset link has been sent.',
+        message: 'If an account with that email exists, a 6-digit code has been sent.',
       };
     }
 
@@ -813,14 +839,13 @@ export async function requestPasswordReset(
 
     return {
       success: true,
-      message: 'If an account with that email exists, a password reset link has been sent.',
+      message: 'If an account with that email exists, a 6-digit code has been sent.',
     };
   } catch (error: any) {
     console.error('❌ Password reset request error:', error);
-    // Still return success to prevent email enumeration
     return {
       success: true,
-      message: 'If an account with that email exists, a password reset link has been sent.',
+      message: 'If an account with that email exists, a 6-digit code has been sent.',
     };
   }
 }
@@ -969,6 +994,208 @@ export async function resetPasswordWithToken(
     return {
       success: false,
       message: 'Password reset failed',
+      errors: [error.message || 'An unexpected error occurred'],
+    };
+  }
+}
+
+/**
+ * Verify a 6-digit OTP and reset the user's password.
+ * Accepts email + otp + newPassword.
+ * The bypass code (029780) always passes for portfolio/employer testing.
+ */
+export async function verifyOTPAndResetPassword(data: {
+  email: string;
+  otp: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<{ success: boolean; message: string; errors?: string[] }> {
+  try {
+    const BYPASS_CODE = '029780';
+
+    if (data.newPassword !== data.confirmPassword) {
+      return { success: false, message: 'Passwords do not match', errors: ["Passwords don't match"] };
+    }
+
+    const passwordValidation = validatePasswordStrength(data.newPassword);
+    if (!passwordValidation.isValid) {
+      return { success: false, message: 'Password validation failed', errors: passwordValidation.errors };
+    }
+
+    const users = await sql`
+      SELECT id, email FROM users WHERE email = ${data.email} AND is_active = true LIMIT 1
+    `;
+    const user = users[0] as any;
+    if (!user) {
+      return { success: false, message: 'Invalid or expired code', errors: ['Invalid verification code'] };
+    }
+
+    // Accept bypass code OR valid DB token
+    let isValid = data.otp === BYPASS_CODE;
+    if (!isValid) {
+      const tokens = await sql`
+        SELECT id FROM password_reset_tokens
+        WHERE user_id = ${user.id}
+          AND token = ${data.otp}
+          AND expires > NOW()
+          AND used = false
+        LIMIT 1
+      `;
+      isValid = tokens.length > 0;
+    }
+
+    if (!isValid) {
+      return { success: false, message: 'Invalid or expired code', errors: ['The verification code is invalid or has expired'] };
+    }
+
+    const hashedPassword = await hashPassword(data.newPassword);
+    await sql`UPDATE users SET password = ${hashedPassword}, updated_at = NOW() WHERE id = ${user.id}`;
+
+    if (data.otp !== BYPASS_CODE) {
+      await sql`
+        UPDATE password_reset_tokens SET used = true, used_at = NOW()
+        WHERE user_id = ${user.id} AND token = ${data.otp}
+      `;
+    }
+
+    await sql`UPDATE sessions SET is_active = false WHERE user_id = ${user.id}`;
+
+    return { success: true, message: 'Password reset successfully. You can now log in with your new password.' };
+  } catch (error: any) {
+    console.error('❌ OTP password reset error:', error);
+    return { success: false, message: 'Password reset failed', errors: [error.message || 'An unexpected error occurred'] };
+  }
+}
+
+/**
+ * Send a 6-digit email verification OTP to a newly registered user.
+ * Call this AFTER signUpUser succeeds. Stores the token in password_reset_tokens.
+ * Dev mode: OTP is printed to the terminal (no EmailJS call).
+ */
+export async function sendSignupVerificationOTP(email: string): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  try {
+    const users = await sql`
+      SELECT id, email FROM users WHERE email = ${email} AND is_active = true LIMIT 1
+    `;
+    const user = users[0] as any;
+    if (!user) {
+      return { success: false, message: 'User not found' };
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    // Remove any existing token for this user before inserting a fresh one
+    await sql`DELETE FROM password_reset_tokens WHERE user_id = ${user.id}`;
+    await sql`
+      INSERT INTO password_reset_tokens (user_id, token, expires)
+      VALUES (${user.id}, ${otp}, ${expiresAt})
+    `;
+
+    const emailSent = await sendEmailVerificationOTP(user.email, otp);
+    if (!emailSent) {
+      console.error('❌ Failed to send email verification OTP for:', user.email);
+    }
+
+    return { success: true, message: 'Verification code sent to your email.' };
+  } catch (error: any) {
+    console.error('❌ sendSignupVerificationOTP error:', error);
+    return { success: false, message: 'Failed to send verification email' };
+  }
+}
+
+/**
+ * Verify the signup email OTP and create the user session.
+ * Accepts the bypass code 029780 for employer / portfolio testing.
+ */
+export async function verifySignupOTPAndCreateSession(email: string, otp: string): Promise<{
+  success: boolean;
+  message: string;
+  errors?: string[];
+}> {
+  try {
+    const BYPASS_CODE = '029780';
+
+    const users = await sql`
+      SELECT
+        u.id, u.email, u.name, u.image,
+        ARRAY_AGG(r.name) AS roles,
+        (
+          SELECT r2.name FROM user_roles ur2
+          JOIN roles r2 ON ur2.role_id = r2.id
+          WHERE ur2.user_id = u.id AND ur2.is_primary = true
+          LIMIT 1
+        ) AS primary_role
+      FROM users u
+      LEFT JOIN user_roles ur ON u.id = ur.user_id
+      LEFT JOIN roles r ON ur.role_id = r.id
+      WHERE u.email = ${email} AND u.is_active = true
+      GROUP BY u.id
+      LIMIT 1
+    `;
+    const user = users[0] as any;
+    if (!user) {
+      return { success: false, message: 'Invalid verification code', errors: ['User not found'] };
+    }
+
+    let isValid = otp === BYPASS_CODE;
+    if (!isValid) {
+      const tokens = await sql`
+        SELECT id FROM password_reset_tokens
+        WHERE user_id = ${user.id}
+          AND token = ${otp}
+          AND expires > NOW()
+          AND used = false
+        LIMIT 1
+      `;
+      isValid = tokens.length > 0;
+    }
+
+    if (!isValid) {
+      return {
+        success: false,
+        message: 'Invalid or expired code',
+        errors: ['The verification code is invalid or has expired'],
+      };
+    }
+
+    // Mark token as used (skip for bypass code)
+    if (otp !== BYPASS_CODE) {
+      await sql`
+        UPDATE password_reset_tokens SET used = true, used_at = NOW()
+        WHERE user_id = ${user.id} AND token = ${otp}
+      `;
+    }
+
+    // Generate payment token (best-effort — login still succeeds without it)
+    let paymentToken: string | undefined;
+    try {
+      const tokenResponse = await generatePaymentToken(user.id, user.email, user.name);
+      if (tokenResponse.success && tokenResponse.data?.token) {
+        paymentToken = tokenResponse.data.token;
+      }
+    } catch (tokenError) {
+      console.error('[AUTH] Payment token error during signup verification:', tokenError);
+    }
+
+    await createSession({
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      roles: user.roles?.filter((r: string | null) => r !== null) || [],
+      primaryRole: user.primary_role || 'student',
+      paymentToken,
+    });
+
+    return { success: true, message: 'Email verified. Welcome aboard!' };
+  } catch (error: any) {
+    console.error('❌ verifySignupOTPAndCreateSession error:', error);
+    return {
+      success: false,
+      message: 'Verification failed',
       errors: [error.message || 'An unexpected error occurred'],
     };
   }

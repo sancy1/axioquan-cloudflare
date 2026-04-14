@@ -333,7 +333,7 @@ export function CourseCard({
 }: CourseCardProps) {
   const formatPrice = (priceCents: number) => {
     if (priceCents === 0) return 'Free';
-    return `$${(priceCents / 100).toFixed(2)}`;
+    return `₦${(priceCents / 100).toLocaleString('en-NG')}`;
   };
 
   const formatDuration = (minutes: number) => {

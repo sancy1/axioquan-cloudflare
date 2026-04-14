@@ -1964,7 +1964,7 @@ export function CourseCard({ course, variant = 'grid' }: CourseCardProps) {
             
             {/* Price */}
             <span className="text-blue-600 font-bold text-lg">
-              {course.price_cents === 0 ? 'FREE' : `$${((course.price_cents || 0) / 100).toFixed(2)}`}
+              {course.price_cents === 0 ? 'FREE' : `₦${((course.price_cents || 0) / 100).toLocaleString('en-NG')}`}
             </span>
           </div>
 
@@ -2000,7 +2000,7 @@ function CourseListCard({ course }: { course: CourseData }) {
   
   const formatPrice = (priceCents: number) => {
     if (priceCents === 0) return 'FREE';
-    return `$${((priceCents || 0) / 100).toFixed(2)}`;
+    return `₦${((priceCents || 0) / 100).toLocaleString('en-NG')}`;
   };
   
   return (

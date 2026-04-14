@@ -46,3 +46,40 @@ export function validatePasswordStrength(password: string): {
   };
 }
 
+/**
+ * Validate username against platform rules.
+ * Rules:
+ *  - 3–20 characters
+ *  - Lowercase letters (a–z), numbers (0–9), underscores (_) and hyphens (-) only
+ *  - Must start with a lowercase letter
+ *  - Must end with a letter or number (not _ or -)
+ *  - No two consecutive special characters (e.g. -- __ _- -_)
+ *
+ * Valid examples: john_doe  alex123  user-42  maria_s
+ */
+export function validateUsername(username: string): { isValid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (username.length < 3 || username.length > 20) {
+    errors.push('Username must be between 3 and 20 characters');
+  }
+
+  if (!/^[a-z]/.test(username)) {
+    errors.push('Username must start with a lowercase letter');
+  }
+
+  if (/[^a-z0-9_-]/.test(username)) {
+    errors.push('Username may only contain lowercase letters, numbers, _ and -');
+  }
+
+  if (/[_-]$/.test(username)) {
+    errors.push('Username must end with a letter or number');
+  }
+
+  if (/[_-]{2}/.test(username)) {
+    errors.push('Username cannot contain consecutive _ or - characters');
+  }
+
+  return { isValid: errors.length === 0, errors };
+}
+
