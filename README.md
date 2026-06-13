@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/images/Axio.png" alt="Axioquan Logo" width="60" height="60" style="border-radius: 16px;" />
+<img src="public/images/Axio.png" alt="Axioquan Logo" width="30" height="30" style="border-radius: 8px;" />
 
 # 🎓 AxioQuan LMS
 
