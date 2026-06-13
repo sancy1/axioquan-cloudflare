@@ -28,7 +28,8 @@
 - [🌟 Project Overview](#-project-overview)
 - [✨ Features](#-features)
 - [🏗️ Architecture](#️-architecture)
-- [🛠️ Tech Stack](#️-tech-stack)
+- [� Related Microservices](#-related-microservices)
+- [�️ Tech Stack](#️-tech-stack)
 - [⚙️ DevOps Pipeline](#️-devops-pipeline)
 - [🚀 Quick Start — Clone & Run](#-quick-start--clone--run)
 - [🐳 Docker Setup (Recommended)](#-docker-setup-recommended)
@@ -44,7 +45,10 @@
 
 ## 🌟 Project Overview
 
-**AxioQuan** is a feature-rich e-learning platform where teachers and students connect in a modern, interactive environment. Built as a monolithic full-stack Next.js application, it eliminates the need for a separate backend — all API routes, server-side rendering, authentication, and real-time features live within a single codebase.
+**AxioQuan** is a feature-rich e-learning platform where teachers and students connect in a modern, interactive environment. Built as a monolithic full-stack Next.js application, it serves two critical functions:
+
+1. **Full-Stack Server** — All API routes, server-side rendering, authentication, and real-time features live within a single codebase, eliminating the need for a separate backend.
+2. **API Consumer** — Integrates with specialized microservices for payment processing, notifications, and messaging to provide a comprehensive learning experience.
 
 > 💡 **For Employers:** This project demonstrates production-level full-stack development combined with a complete DevOps pipeline including Infrastructure as Code, Docker containerization, and automated CI/CD deployment.
 
@@ -125,7 +129,65 @@
 
 ---
 
-## 🛠️ Tech Stack
+## � Related Microservices
+
+AxioQuan integrates with specialized microservices to handle specific domain concerns. Each service is independently deployable and can be explored separately:
+
+### 📦 Axio Payment Service
+[![GitHub](https://img.shields.io/badge/GitHub-sancy1%2Faxio--payment-181717?style=for-the-badge&logo=github)](https://github.com/sancy1/axio-payment.git)
+[![Java](https://img.shields.io/badge/Java-Spring_Boot-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://spring.io)
+[![Payment](https://img.shields.io/badge/Payment-Processing-4CAF50?style=for-the-badge)](https://github.com/sancy1/axio-payment.git)
+
+A payment processing service built with **Java Spring Boot** that enables students to make secure payments for paid courses. Handles payment gateway integration, transaction management, and payment history tracking.
+
+**🔗 [View Repository →](https://github.com/sancy1/axio-payment.git)**
+
+---
+
+### 🔔 Axio Notification Service
+[![GitHub](https://img.shields.io/badge/GitHub-sancy1%2Faxio--notification-181717?style=for-the-badge&logo=github)](https://github.com/sancy1/axio-notification.git)
+[![.NET](https://img.shields.io/badge/.NET-ASP.NET_Core-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com)
+[![API](https://img.shields.io/badge/WebAPI-Core-9C27B0?style=for-the-badge)](https://github.com/sancy1/axio-notification.git)
+
+A backend notification service built with **ASP.NET Web API Core** that manages the entire notification system for the AxioQuan platform. Ensures timely notifications for important actions such as payment confirmations, course registrations, and system alerts.
+
+**🔗 [View Repository →](https://github.com/sancy1/axio-notification.git)**
+
+---
+
+### 💬 AxioQuan Message Service
+[![GitHub](https://img.shields.io/badge/GitHub-sancy1%2Faxioquan--message-181717?style=for-the-badge&logo=github)](https://github.com/sancy1/axioquan-message.git)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Fastify-3178C6?style=for-the-badge&logo=typescript)](https://fastify.io)
+[![Messaging](https://img.shields.io/badge/Messaging-Real--time-FF5722?style=for-the-badge)](https://github.com/sancy1/axioquan-message.git)
+
+A real-time messaging service built with **Fastify + TypeScript** that enables communication between students and instructors. Supports direct messaging, group conversations, and real-time chat features for collaborative learning.
+
+**🔗 [View Repository →](https://github.com/sancy1/axioquan-message.git)**
+
+---
+
+### 🌐 Integration Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      AxioQuan Next.js App                        │
+│                   (Full-Stack Server + API Consumer)             │
+└─────────────┬─────────────────────┬─────────────────────┬───────┘
+              │                     │                     │
+              ▼                     ▼                     ▼
+┌───────────────────┐   ┌───────────────────┐   ┌───────────────────┐
+│  Axio Payment     │   │ Axio Notification │   │ AxioQuan Message  │
+│  (Java Spring)    │   │  (ASP.NET Core)   │   │  (Fastify + TS)   │
+│                   │   │                   │   │                   │
+│  • Payments       │   │  • Notifications   │   │  • Messaging      │
+│  • Transactions   │   │  • Alerts         │   │  • Groups         │
+│  • History        │   │  • Email/Push     │   │  • Real-time Chat │
+└───────────────────┘   └───────────────────┘   └───────────────────┘
+```
+
+---
+
+## �🛠️ Tech Stack
 
 ### Frontend
 | Technology | Version | Purpose |
@@ -619,7 +681,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 <div align="center">
 
-**Built with ❤️ by [Sanchez Alexander](https://github.com/sancy1)**
+**Built by [Sanchez Alexander](https://github.com/sancy1)**
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com)
 [![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github)](https://github.com/sancy1)
